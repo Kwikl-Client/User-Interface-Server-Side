@@ -6,18 +6,17 @@ import sendMail from "../utils/sendMail.js";
 
 export const registerCustomer = async (req, res) => {
     try {
-        let { name, email } = req.body;
+        let { name, email, stripeDetails } = req.body;
         const existingMember = await customerModel.findOne({ email: email});
         if (existingMember)
             return res.status(400).json({ success: false, message: `Customer Already Exist, Please Login`, data: null });
 
         const password = generate({ length: 10, numbers: true  });
-        await sendMail(email, "Wonted Password", `Your one time password is ${password}`)
         const hashedPwd = await encrypt(password);
-
-        const newEntry = { name, email, password: hashedPwd};
-        // create entry in db
+        const newEntry = { name, email, password: hashedPwd, stripeDetails};
         const newCustomer = await customerModel.create(newEntry);
+        await sendMail(email, "Wonted Password", `Your password is ${password}`)
+
         return res.status(201).json({
             success: true,
             message: 'New Customer Account Created Successfully. Password has been sent to your mail',

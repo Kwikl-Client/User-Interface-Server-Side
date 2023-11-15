@@ -1,12 +1,10 @@
 import express from 'express';
-import { payment } from '../controllers/buyProduct.js';
-import { offerpayment } from '../controllers/offerProduct.js';
+import { createPaymentIntent, retrievePaymentDetails, updatePaymentStatus } from '../controllers/paymentController.js';
 
 const PaymentRoutes = express.Router();
 
-
-PaymentRoutes.post('/fullpayment', payment);
-PaymentRoutes.post('/offerprice',offerpayment)
-
+PaymentRoutes.get('/createPaymentIntent', createPaymentIntent);
+PaymentRoutes.get('/retrievePaymentDetails/:sessionId', retrievePaymentDetails);
+PaymentRoutes.get('/updatePaymentStatus/:email', updatePaymentStatus);
 
 export default PaymentRoutes;

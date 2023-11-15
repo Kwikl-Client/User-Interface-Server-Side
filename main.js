@@ -15,10 +15,11 @@ app.use(express.urlencoded({extended: true}));
 app.use(cors());
 
 //GET, POST, PUT, PATCH, DELETE
-app.use("/offer-payment", PaymentRoutes);
+app.use("/payment", PaymentRoutes);
 app.use("/customer", CustomerRoutes);
 
 const port = process.env.PORT || 7000;
+
 app.listen(port, () => {
   console.log(`Server started on port ${port}`.bold.brightGreen);
 });

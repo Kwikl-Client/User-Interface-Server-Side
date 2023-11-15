@@ -15,18 +15,15 @@ const CustomerSchema = mongoose.Schema(
       type: String,
       required: true,
     },
+    stripeDetails: {
+      type: String,
+      required: true,
+    },
   },
   {
     timestamps: true,
   }
 );
-//to hide password
-// CustomerSchema.set('toJSON', {
-//   transform: (doc, ret) => {
-//     delete ret.password;
-//     return ret;
-//   },
-// });
 const customerModel = mongoose.model('customers', CustomerSchema, 'customers');
 
 export default customerModel;
