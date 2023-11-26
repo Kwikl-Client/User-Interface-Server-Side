@@ -3,7 +3,7 @@ import Stripe from "stripe";
 import customerModel from "../models/customerModel.js";
 
 configDotenv();
-const stripe = Stripe(process.env.STRIPE_SECRET);
+export const stripe = Stripe(process.env.STRIPE_SECRET);
 
 export const createPaymentIntent = async (req, res) => {
     const { email, name }= req.query;

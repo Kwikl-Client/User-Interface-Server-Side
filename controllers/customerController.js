@@ -1,3 +1,5 @@
+import jwt from 'jsonwebtoken';
+import { stripe } from "./paymentController.js";
 import customerModel from "../models/customerModel.js";
 import { encrypt, verifyPwd } from "../utils/hasher.js";
 import { generateAccessToken } from "../utils/generateToken.js";
@@ -7,6 +9,8 @@ import sendMail from "../utils/sendMail.js";
 export const registerCustomer = async (req, res) => {
     try {
         let { name, email, stripeDetails } = req.body;
+        const session = await stripe.checkout.sessions.retrieve(stripeDetails);
+        console.log(session.payment_intent);
         const existingMember = await customerModel.findOne({ email: email});
         if (existingMember)
             return res.status(400).json({ success: false, message: `Customer Already Exist, Please Login`, data: null });
@@ -15,7 +19,7 @@ export const registerCustomer = async (req, res) => {
         const hashedPwd = await encrypt(password);
         const newEntry = { name, email, password: hashedPwd, stripeDetails};
         const newCustomer = await customerModel.create(newEntry);
-        await sendMail(email, "Wonted Password", `Your password is ${password}`)
+        await sendMail(email, "Wonted Password", `Your password is ${password}, Your payment id is ${session.payment_intent}`)
 
         return res.status(201).json({
             success: true,
@@ -78,7 +82,12 @@ export const editCustomerPassword = async (req, res) => {
             const hashedNewPwd = await encrypt(newPassword);
             customer.password = hashedNewPwd;
             const updatedCustomer = await customer.save();
-            return res.status(200).json({ success: true, message: 'User password changed Successfully', data: updatedCustomer});
+            return res.status(200).json({
+                success: true,
+                message: 'User password changed Successfully',
+                data: updatedCustomer,
+                accessToken: generateAccessToken(customer._id, customer.email),
+            });
         }
         else {
             return res.status(401).json({ success: false, message: 'Incorrect old password', data: null });
@@ -86,5 +95,24 @@ export const editCustomerPassword = async (req, res) => {
     }
     catch (error) {
         return res.status(500).json({ success: false, message: 'Internal Server error', data: null });
+    }
+};
+
+export const verifyTkn = async (req, res) => {
+    try {
+        const { token } = req.params;
+        jwt.verify(token, process.env.JWT_SECRET_KEY, async (err, decoded) => {
+            if(err)
+                return res.status(401).json({ success: false, message: 'Not authorized, Invalid Token', error: err });
+            return res.status(200).json({
+                success: true,
+                message: `Token verified successfully Successfully`,
+                data: null
+            });
+        });
+    }
+    catch (error) {
+        console.log(error)
+        return res.status(500).json({success: false, message: 'Internal Server Error', data: null });
     }
 };
