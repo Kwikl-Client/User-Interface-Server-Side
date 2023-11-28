@@ -1,12 +1,12 @@
 import express from 'express';
 import { editHero, editCharacters, editOverview, editAuthor, editOffer,
 getHero, getCharacters, getOverview, getAuthor, getOffer } from '../controllers/contentController.js';
-import upload from '../middlewares/multermiddlewares.js';
+// import upload from '../middlewares/multermiddlewares.js';
 
 const ContentRoutes = express.Router();
 
 ContentRoutes.patch('/editHero', editHero);
-ContentRoutes.patch('/editCharacters', editCharacters);
+ContentRoutes.patch('/editCharacters/:_id', editCharacters);
 ContentRoutes.patch('/editOverview', editOverview);
 ContentRoutes.patch('/editAuthor', editAuthor);
 ContentRoutes.patch('/editOffer', editOffer);

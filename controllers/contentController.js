@@ -24,11 +24,17 @@ export const editHero = async(req, res) => {
 
 export const editCharacters = async(req, res) => {
   try {
+    const {_id} = req.params;
     const {characterName, shortDescription, briefDescription}=req.body
+    const character = await characterModel.findById(_id);
+    character.characterName = characterName || character.characterName;
+    character.shortDescription = shortDescription || character.shortDescription;
+    character.briefDescription = briefDescription || character.briefDescription;
+    await character.save();
     return res.json({
       success: true,
-      message: 'Form data received successfully',
-      data: newHero
+      message: 'Character data edited successfully',
+      data: character
     });
   }
   catch (error) {
@@ -47,7 +53,7 @@ export const editOverview = async(req, res) => {
     await overview.save();
     return res.json({
       success: true,
-      message: 'Form data received successfully',
+      message: 'Overview data edited successfully',
       data: overview
     });
   }
@@ -68,7 +74,7 @@ export const editAuthor = async(req, res) => {
     await author.save();
     return res.json({
       success: true,
-      message: 'Form data received successfully',
+      message: 'Author data edited successfully',
       data: author
     });
   }
@@ -88,7 +94,7 @@ export const editOffer = async(req, res) => {
     await offer.save();
     return res.json({
       success: true,
-      message: 'Form data received successfully',
+      message: 'Offer data edited successfully',
       data: offer
     });
   }
