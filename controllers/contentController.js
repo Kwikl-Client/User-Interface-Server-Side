@@ -30,6 +30,7 @@ export const editCharacters = async(req, res) => {
     character.characterName = characterName || character.characterName;
     character.shortDescription = shortDescription || character.shortDescription;
     character.briefDescription = briefDescription || character.briefDescription;
+    character.image = req.picUrls?.image || character.image;
     await character.save();
     return res.json({
       success: true,
@@ -50,6 +51,7 @@ export const editOverview = async(req, res) => {
     const overview = await overviewModel.findOne({});
     overview.overallTitle = overallTitle || overview.overallTitle;
     overview.cards = cards || overview.cards;
+    overview.image = req.picUrls?.image || overview.image;
     await overview.save();
     return res.json({
       success: true,
@@ -71,6 +73,7 @@ export const editAuthor = async(req, res) => {
     author.name = name || author.name;
     author.shortDescription = shortDescription || author.shortDescription;
     author.briefDescription = briefDescription || author.briefDescription;
+    author.image = req.picUrls?.image || author.image;
     await author.save();
     return res.json({
       success: true,

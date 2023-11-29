@@ -1,15 +1,17 @@
-import multer from 'multer';
+import Multer from "multer";
 
-const storage = multer.memoryStorage({
-  destination: function (req, file, cb) {
-    cb(null, './assets/uploadedImages/'); // Set the destination folder for uploaded files
-  },
-  filename: function (req, file, cb) {
-    cb(null, file.fieldname + '-' + Date.now()); // Set the filename (you can customize this)
+const upload = Multer({
+  storage: Multer.diskStorage({
+    destination: function (req, file, callback) {
+      callback(null, `${process.cwd()}/temp`);
+    },
+    filename: function (req, file, callback) {
+      callback(null, file.fieldname + "_" + Date.now() + "_" + file.originalname);
+    },
+  }),
+  limits: {
+    fileSize: 5 * 1024 * 1024,
   },
 });
-
-// Set up Multer middleware
-const upload = multer({ storage: storage });
 
 export default upload;
