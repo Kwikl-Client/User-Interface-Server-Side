@@ -1,11 +1,12 @@
 import dotenv from 'dotenv';
 import colors from 'colors';
-import { heroModel, characterModel, overviewModel, authorModel, offerBannerModel } from "./models/contentModel.js";
+import { heroModel, characterModel, overviewModel, authorModel, offerBannerModel, bookModel } from "./models/contentModel.js";
 import hero from './data/hero.js';
 import characters from './data/characters.js';
 import overview from './data/overview.js';
 import author from './data/author.js';
 import offerBanner from './data/offerbanner.js';
+import book from './data/book.js';
 import connectDB from './utils/connectDb.js';
 
 colors.enable();
@@ -19,7 +20,8 @@ const importData = async () => {
     // await characterModel.insertMany(characters);
     // await overviewModel.insertMany(overview);
     // await authorModel.insertMany(author);
-    await offerBannerModel.insertMany(offerBanner);
+    // await offerBannerModel.insertMany(offerBanner);
+    await bookModel.insertMany(book);
     console.log('Data Imported!'.green.inverse);
     process.exit();
   } catch (error) {

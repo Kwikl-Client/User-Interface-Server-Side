@@ -18,7 +18,7 @@ app.use(cors());
 //GET, POST, PUT, PATCH, DELETE
 app.use("/payment", PaymentRoutes);
 app.use("/customer", CustomerRoutes);
-app.use("/cms",ContentRoutes)
+app.use("/cms", ContentRoutes);
 
 const port = process.env.PORT || 7000;
 

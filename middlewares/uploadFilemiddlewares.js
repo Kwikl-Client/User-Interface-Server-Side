@@ -3,6 +3,7 @@ import { authenticateGoogle, uploadToGoogleDrive } from "../utils/uploadToDrive.
 
 const uploadImg =async(req, res, next) => {
     try {
+        const route = req.originalUrl.split("/")[2];
         // Check if any file is uploaded
         if (!req.files || Object.keys(req.files).length === 0){
             next();
@@ -14,11 +15,11 @@ const uploadImg =async(req, res, next) => {
 
         // Iterate through each named field and create an array of promises for file uploads
         for (const fieldName in req.files) {
-            console.log(fieldName)
             const files = req.files[fieldName];
             promises.push(
                 Promise.all(files.map(async (file) => {
-                    const response = await uploadToGoogleDrive(file, auth);
+                    const response = await uploadToGoogleDrive(file, auth, route);
+                    console.log(response)
                     // Delete the file after uploading
                     fs.unlink(file.path, (err) => {
                         if (err)
@@ -27,7 +28,9 @@ const uploadImg =async(req, res, next) => {
                             console.log("File deleted");
 
                     });
-                    req.picUrls[fieldName]=`https://drive.google.com/uc?export=view&id=${response.data.id}`
+                    // req.picUrls[fieldName]=`https://drive.google.com/thumbnail?id=${response.data.id}`
+                    req.picUrls[fieldName]=`https://lh3.googleusercontent.com/d/${response.data.id}?authuser=0`
+                    //req.picUrls[fieldName]=`https://drive.usercontent.google.com/download?id=${response.data.id}&export=view&authuser=0`
                 }))
             );
         }
