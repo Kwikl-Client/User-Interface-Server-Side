@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "seobrook",
+  "private_key_id": "196649eb9c51c885f548fb369cb217b2083fe406",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQCxvu7Ew1DGjqgo\nFrse/q54H4Qeq4XKs/neKhn6Vxc3S081zab09rHeCRksRO1wGYk7KbJfWQzJRhUk\n0PUk2ftTEUdUD+mYHh4j+W3mmLRq/jacMqUnXqq40ARvlCgssdHajWMMFBdlUPkx\nYyP0/3BGtiNYfw+BG6SQDdiQhgNdlXhI4L2Enqi/qwfEM2ZLGUDSUvJ7ylu/oHZH\ntGzwm117ziRDv/DJkNX1nM9gwg+QKEA02oYprCrBNwKHDaWqrLuBt0+3BG/SgwND\nS32xS2duylIrmPdd+7h2afHGpZ36bXFPFPpYzYl4M4ofXLuseDFIglmUtwuAmNr/\nB7yAESyTAgMBAAECggEAST/mJjBXmXww0FSNyLgsLlTOndURzfddgbDYA9LgPmlK\nu2GE7G693kLhnNzK/OeJJliIqcKJAmlfTUzPueAbMqBsRLhKC+ZdhXXFVMKZl34s\nAzLb3N2mfYM8UL89zy14zhh2OQQOoDI+f5vbtZuPKZTl/BJg0VQS/Uq3dNfFi0rc\nh1FUot0lLwLT35o99Jz+FQhOqQFa8wlfTO8lexROEycxJU04mK38Etec+5hMQZy2\njuvpdtGYxMzPiEtBYzha3TBHtnOAmFjJInavT1B90tvXi9z3VTfizlkheG5Hc0KO\nLkhoQ35iO014iJi3oJXpcrgFvGqzBqkLSc07TW3wAQKBgQDyVNAJzdvCzP1ICKzl\nvavQvqs234A2vBg6T3J7Qr5VCDcP41ru1crn64kjKMmxoe485ZheLuKVU+AltBts\nIvKA5iGLEs47rX0KGfj8SjGAP06CVzgtuGE2uQluv8rfWRF5ZmdQunE5cFH1Yoe9\nrLzoNx6fGpaE3/sfBrXk+7Z/owKBgQC7xYa7Gv2qYeuZMCs6Cr7aXtFAmlFjACeb\nAAHE/prSsZGUQhQKsUjELHfru7YrVZKn5pcoQc+AltdGyPxyHQTc+1Pm2j9jWY9c\nsdEfrXkFLqI8Cno8bo8Oa4UQNM84Pv1R1aiYhR9KoYOq+VT9dK8Ov8iAWYQrxVrV\nksd7DkauUQKBgCv2CNuOdcyMBXK46CyxUOcIf+TvfMHxM2/4k6sau46Pc/W05/0l\n2a5jAzjWoGhSGPcBK7gCR2aRlbshRkxCtr19gh5JphIbcfCQL6QNDZfXZDWu/ukE\nZtZXkQd/UZ1c+heM5Tc2621hG+0pF7joCkkSHsL8PswSGetR+1Nz+nKDAoGAJoe5\nxdscAkJlneGMfTSHRTf/qEoCOVZmyh+OPWYhTuqw/MMyaZ9HVznowa6bCvlcRqfC\njLg0ZCaPti633pKl1NKdvNk7+J8AE/1I9D8cfju7fqaHvq7RHBxkCZdMjjYetRQq\nrGFksmPCKOtQzVGMOnKQKgY0YOb2ZKzh0hZz2oECgYBBVSFJGK9mw8w3P5TbMlCa\nFD8UdKeA8vw9ZG6voZkIWhdvd7Ku+TFH3Lb1VzBE7XMK7v2jKMy5GoCSG7DSG4bV\n9QkqM1Ome+crN/v3DCQ6S46R2JRdnvIfoOXcW0i6UVccgECGhxTFMiDiHeMh5mS8\nGg6tM1/qweYyf9jij9rdYg==\n-----END PRIVATE KEY-----\n",
+  "client_email": "drive-service@seobrook.iam.gserviceaccount.com",
+  "client_id": "102515397018632862050",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/drive-service%40seobrook.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}
