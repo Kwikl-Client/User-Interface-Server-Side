@@ -41,8 +41,8 @@ export const createPaymentIntent = async (req, res) => {
         },
       ],
       mode: "payment",
-      success_url: `http://localhost:3000/success?&email=${email}&name=${name}&sessionId={CHECKOUT_SESSION_ID}`,
-      cancel_url: `http://localhost:3000/`,
+      success_url: `http://54.90.125.251/success?&email=${email}&name=${name}&sessionId={CHECKOUT_SESSION_ID}`,
+      cancel_url: `http://54.90.125.251/`,
       customer_email: email,
     });
 
@@ -109,8 +109,8 @@ export const createOfferPaymentIntent = async (req, res) => {
                 },
             ],
             mode: "payment",
-            success_url: `http://localhost:3000/success?&email=${email}&name=${name}&sessionId={CHECKOUT_SESSION_ID}`,
-            cancel_url: "http://localhost:3000/cancel",
+            success_url: `http://54.90.125.251/success?&email=${email}&name=${name}&sessionId={CHECKOUT_SESSION_ID}`,
+            cancel_url: "http://54.90.125.251/cancel",
             customer_email: email,
         });
         await customerModel.create({ email: email, stripeDetails: session.id });
