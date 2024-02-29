@@ -199,6 +199,9 @@ export const raiseCommunityRequest = async (req, res) => {
             return res.status(400).json({ success: false, message: 'Customer not found', data: null});
         existingUser.joinCommunityStatus = "raised";
         await existingUser.save();
+        const userEmail=existingUser.email;
+        await sendMail(userEmail, "Request for Community", `thanks for requesting to join community. we will get back to you in short notice`);
+  
         return res.status(200).json({
             success: true,
             message: `Join community request raised successfully`,
