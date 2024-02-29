@@ -109,8 +109,8 @@ export const createOfferPaymentIntent = async (req, res) => {
                 },
             ],
             mode: "payment",
-            success_url: `http://54.90.125.251/success?&email=${email}&name=${name}&sessionId={CHECKOUT_SESSION_ID}`,
-            cancel_url: "http://54.90.125.251/cancel",
+            success_url: `http://localhost:7000/success?&email=${email}&name=${name}&sessionId={CHECKOUT_SESSION_ID}`,
+            cancel_url: "http://localhost:7000/cancel",
             customer_email: email,
         });
         await customerModel.create({ email: email, stripeDetails: session.id });
@@ -121,18 +121,23 @@ export const createOfferPaymentIntent = async (req, res) => {
     }
 }
 export const totalRevenue = async (req, res) => {
+  console.log("abc")
     try {
+      console.log("in try block");
       const paymentIntents = await stripe.paymentIntents.list({
-        limit: 10, // Set an appropriate limit based on your needs
+        limit: 100, // Set an appropriate limit based on your needs
       });
+      console.log(paymentIntents)
       const totalRevenue = paymentIntents.data.reduce((total, paymentIntent) => {
-        if (paymentIntent && paymentIntent.amount_received && paymentIntent.currency === 'inr') {
+        if (paymentIntent && paymentIntent.amount_received && paymentIntent.currency === 'USD') {
           total += paymentIntent.amount_received / 100; // Convert amount from cents to dollars
         }
         return total;
       }, 0);
-  
+      console.log(totalRevenue)
+      console.log("totalRevenue")
       return res.status(200).json({ success: true, message: 'Total revenue made', data:totalRevenue});
+      console.log(totalRevenue)
     } catch (error) {
       console.error('Error fetching total revenue:', error);
       return res.status(500).json({ success: false, message: 'Internal Server Error' });

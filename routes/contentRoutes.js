@@ -1,7 +1,7 @@
 import express from 'express';
 import { protect } from '../middlewares/authmiddlewares.js';
-import { editHero, editCharacters, editOverview, editAuthor, editOffer, editUltimate, editFomoAuthor,
-getHero, getCharacters, getOverview, getAuthor, getOffer, getUltimateHero, getFomoAuthor,
+import { editHero, editCharacters, editOverview, editAuthor, editOffer, editUltimate, editFomoAuthor,editHeader,
+getHero, getCharacters, getOverview, getAuthor,getHeader, getOffer, getUltimateHero, getFomoAuthor,
 getBook, getFreeBook, insertChapter, getChapters, deleteChapter, editRefund, getRefund, 
 editReviews, getReviews, editPolicy, getPolicy, editUserAgreement, getUserAgreement, editTndC, getTndC} from '../controllers/contentController.js';
 import upload from '../middlewares/multermiddlewares.js';
@@ -12,6 +12,7 @@ ContentRoutes.patch('/editHero', upload.fields([{ name: 'image', maxCount: 1 },]
 ContentRoutes.patch('/editCharacters/:_id', upload.fields([{ name: 'image', maxCount: 1 },]), uploadImg, editCharacters);
 ContentRoutes.patch('/editOverview', upload.fields([{ name: 'image', maxCount: 1 },]), uploadImg, editOverview);
 ContentRoutes.patch('/editAuthor', upload.fields([{ name: 'image', maxCount: 1 },]), uploadImg, editAuthor);
+ContentRoutes.patch('/editHeader', upload.fields([{ name: 'image', maxCount: 1 },]), uploadImg, editHeader);
 ContentRoutes.patch('/editOffer', editOffer);
 ContentRoutes.patch('/editPolicy', editPolicy);
 ContentRoutes.patch('/editAgreement', editUserAgreement);
@@ -27,6 +28,7 @@ ContentRoutes.get('/getHero', getHero);
 ContentRoutes.get('/getCharacters', getCharacters);
 ContentRoutes.get('/getOverview', getOverview);
 ContentRoutes.get('/getAuthor', getAuthor);
+ContentRoutes.get('/getHeader', getHeader);
 ContentRoutes.get('/getOffer', getOffer);
 ContentRoutes.get('/getPolicy', getPolicy);
 ContentRoutes.get('/getTndC', getTndC);

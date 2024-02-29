@@ -17,6 +17,9 @@ const authenticateGoogle = () => {
 const uploadToGoogleDrive = async (file, auth, route) => {
     let parentFolderId;
     switch (route) {
+        case 'editHeader':
+            parentFolderId = process.env.HEADER_FOLDER_ID;
+            break;
         case 'editHero':
             parentFolderId = process.env.HERO_FOLDER_ID;
             break;

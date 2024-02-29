@@ -1,5 +1,5 @@
 import { heroModel, characterModel, overviewModel, authorModel, offerBannerModel,
-  fomoModel, ultimateModel, bookModel,refundModel, testimonalModel,policyModel, userAgreementModel, tndCModel,richTextCModel  } from "../models/contentModel.js";
+  fomoModel, ultimateModel, bookModel,refundModel, testimonalModel,policyModel, userAgreementModel, tndCModel,richTextCModel, headerModel  } from "../models/contentModel.js";
 import mammoth from "mammoth";
 import customerModel from "../models/customerModel.js";
 
@@ -31,6 +31,8 @@ export const editCharacters = async(req, res) => {
     const {_id} = req.params;
     const {characterName, shortDescription, briefDescription}=req.body
     const character = await characterModel.findById(_id);
+    // character.heading = heading || character.heading;
+    // character.subHeading = subHeading || character.subHeading;
     character.characterName = characterName || character.characterName;
     character.shortDescription = shortDescription || character.shortDescription;
     character.briefDescription = briefDescription || character.briefDescription;
@@ -51,8 +53,9 @@ export const editCharacters = async(req, res) => {
 
 export const editOverview = async(req, res) => {
   try {
-    const {overallTitle, cards} = req.body;
+    const {subHeading,overallTitle, cards} = req.body;
     const overview = await overviewModel.findOne({});
+    overview.subHeading = subHeading || overview.subHeading;
     overview.overallTitle = overallTitle || overview.overallTitle;
     overview.cards = JSON.parse(cards) || overview.cards;
     overview.image = req.picUrls?.image || overview.image;
@@ -69,11 +72,45 @@ export const editOverview = async(req, res) => {
     });
   }
 };
+export const editHeader = async (req, res) => {
+  console.log("in function");
+  try {
+    console.log("in try");
+    const { menu1: newMenu1, menu2: newMenu2, menu3: newMenu3, menu4: newMenu4 } = req.body;
+    console.log(req.body);
+    let header = await headerModel.findOne({});
+    
+    // Check if header is null
+    if (!header) {
+      header = new headerModel(); // Create a new header if it doesn't exist
+    }
+
+    header.menu1 = newMenu1 || header.menu1;
+    header.menu2 = newMenu2 || header.menu2;
+    header.menu3 = newMenu3 || header.menu3;
+    header.menu4 = newMenu4 || header.menu4;
+    header.image = req.picUrls?.image || header.image;
+    await header.save();
+    return res.json({
+      success: true,
+      message: 'header data edited successfully',
+      data: header
+    });
+  } catch (error) {
+    console.error('Error processing form data:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Internal server error',
+      error: error.message,
+    });
+  }
+};
 
 export const editAuthor = async(req, res) => {
   try {
-    const {name, shortDescription, briefDescription} = req.body;
+    const {heading,name, shortDescription, briefDescription} = req.body;
     const author = await authorModel.findOne({});
+    author.heading = heading || author.heading;
     author.name = name || author.name;
     author.shortDescription = shortDescription || author.shortDescription;
     author.briefDescription = briefDescription || author.briefDescription;
@@ -93,8 +130,9 @@ export const editAuthor = async(req, res) => {
 };
 export const editFomoAuthor = async(req, res) => {
   try {
-    const {name, shortDescription, briefDescription} = req.body;
+    const {heading,name, shortDescription, briefDescription} = req.body;
     const author = await fomoModel.findOne({});
+    author.heading = heading || author.heading;
     author.name = name || author.name;
     author.shortDescription = shortDescription || author.shortDescription;
     author.briefDescription = briefDescription || author.briefDescription;
@@ -380,7 +418,20 @@ export const getAuthor = async(req, res) => {
     return res.status(500).json({success: false, message: 'Internal server error', error: error.message});
   }
 };
-
+export const getHeader = async(req, res) => {
+  try {
+    const headerData = await headerModel.findOne({});
+    return res.json({
+      success: true,
+      message: 'Author data received successfully',
+      data: headerData
+    });
+  }
+  catch (error) {
+    console.error(error);
+    return res.status(500).json({success: false, message: 'Internal server error', error: error.message});
+  }
+};
 export const getRefund = async(req, res) => {
   try {
     const refundData = await refundModel.findOne({});

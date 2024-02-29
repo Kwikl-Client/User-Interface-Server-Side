@@ -31,6 +31,14 @@ const HeroSchema = mongoose.Schema(
 
 const CharacterSchema = mongoose.Schema(
     {
+        // heading: {
+        //     type: String,
+        //     required: true,
+        // },
+        // subHeading: {
+        //     type: String,
+        //     required: true,
+        // },
         characterName: {
             type: String,
             required: true,
@@ -53,6 +61,46 @@ const CharacterSchema = mongoose.Schema(
       timestamps: true,
     }
 );
+// const CharactersCardsSchema = mongoose.Schema(
+//     {
+       
+//         characterName: {
+//             type: String,
+//             required: true,
+//         },
+//         shortDescription: {
+//             type: String,
+//             required: true,
+//         },
+//         briefDescription: {
+//             type: String,
+//             required: true,
+//         },
+//         image: {
+//             type: String,
+//             required: true,
+//             default: null
+//         },
+//     }
+// );
+// const CharacterSchema = mongoose.Schema(
+//     {
+//         heading: {
+//             type: String,
+//             required: true,
+//         },
+//         subHeading: {
+//             type: String,
+//             required: true,
+//         },
+//         characters: [{
+//             type: CharactersCardsSchema
+//         }]    
+//     },
+//     {
+//       timestamps: true,
+//     }
+// );
 
 const OverviewCardSchema = mongoose.Schema({
     subTitle: {
@@ -67,6 +115,10 @@ const OverviewCardSchema = mongoose.Schema({
 
 const OverviewSchema = mongoose.Schema(
     {
+        subHeading:{
+         type:String,
+         required: true,
+        },
         overallTitle: {
             type: String,
             required: true,
@@ -87,6 +139,10 @@ const OverviewSchema = mongoose.Schema(
 
 const AuthorSchema = mongoose.Schema(
     {
+        heading: {
+            type: String,
+            required: true,
+        },
         name: {
             type: String,
             required: true,
@@ -96,6 +152,33 @@ const AuthorSchema = mongoose.Schema(
             required: true,
         },
         briefDescription: {
+            type: String,
+            required: true,
+        },
+        image: {
+            type: String,
+            required: false
+        },
+    },
+    {
+      timestamps: true,
+    }
+);
+const HeaderSchema = mongoose.Schema(
+    {
+        menu1: {
+            type: String,
+            required: true,
+        },
+        menu2: {
+            type: String,
+            required: true,
+        },
+        menu3: {
+            type: String,
+            required: true,
+        },
+        menu4: {
             type: String,
             required: true,
         },
@@ -164,6 +247,10 @@ const OfferBannerSchema = mongoose.Schema(
 )
 const FomoSchema = mongoose.Schema(
     {
+        heading: {
+            type: String,
+            required: true,
+        },
         name: {
             type: String,
             required: true,
@@ -325,6 +412,7 @@ const heroModel = mongoose.model('hero', HeroSchema, 'hero');
 const characterModel = mongoose.model('character', CharacterSchema, 'character');
 const overviewModel = mongoose.model('overview', OverviewSchema, 'overview');
 const authorModel = mongoose.model('author', AuthorSchema, 'author');
+const headerModel = mongoose.model('header', HeaderSchema, 'header');
 const offerBannerModel = mongoose.model('offerBanner', OfferBannerSchema, 'offerBanner');
 const fomoModel = mongoose.model('fomo', FomoSchema, 'fomo');
 const ultimateModel = mongoose.model('ultimate', UltimateSchema, 'ultimate');
@@ -336,4 +424,4 @@ const userAgreementModel=  mongoose.model('userAgreement', UserAgreementSchema, 
 const tndCModel=  mongoose.model('tndC', TndCSchema, 'tndC')
 const richTextCModel=  mongoose.model('richText', RichTextSchema, 'richText')
 
-export { heroModel, characterModel, overviewModel, authorModel, offerBannerModel, fomoModel, ultimateModel, bookModel,refundModel ,testimonalModel,policyModel,userAgreementModel,tndCModel,richTextCModel};
+export { heroModel, characterModel, overviewModel, authorModel,headerModel, offerBannerModel, fomoModel, ultimateModel, bookModel,refundModel ,testimonalModel,policyModel,userAgreementModel,tndCModel,richTextCModel};
