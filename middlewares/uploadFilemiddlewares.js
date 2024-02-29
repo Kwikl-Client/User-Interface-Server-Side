@@ -19,7 +19,7 @@ const uploadImg =async(req, res, next) => {
             promises.push(
                 Promise.all(files.map(async (file) => {
                     const response = await uploadToGoogleDrive(file, auth, route);
-                    console.log(response)
+                    // console.log(response)
                     // Delete the file after uploading
                     fs.unlink(file.path, (err) => {
                         if (err)
