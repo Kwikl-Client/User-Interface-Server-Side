@@ -316,6 +316,44 @@ const BookSchema = mongoose.Schema(
         timestamps: true,
     }
 );
+const TalkToAuthorSchema = mongoose.Schema(
+    {
+        content:{
+            type: String,
+            required: true,
+        }
+    },
+    {
+        timestamps: true,
+    }
+);
+const BecomeAStarSchema = mongoose.Schema(
+    {
+        label1:{
+            type: String,
+            required: true,
+        },
+        userType:{
+            type: String,
+            required: true,
+        },
+        subscription:{
+            type: String,
+            required: true,
+        },
+        italicTagline:{
+            type: String,
+            required: true,
+        },
+        quote:{
+            type: String,
+            required: true,
+        }
+    },
+    {
+        timestamps: true,
+    }
+);
 const PolicySchema = mongoose.Schema(
     {
         paragraph1:{
@@ -419,9 +457,11 @@ const ultimateModel = mongoose.model('ultimate', UltimateSchema, 'ultimate');
 const bookModel = mongoose.model('book', BookSchema, 'book');
 const refundModel = mongoose.model('refund', RefundSchema, 'refund');
 const testimonalModel = mongoose.model('testimonal', TestimonalSchema, 'testimonal');
+const talkToAuthorModel = mongoose.model('talktoAuthor', TalkToAuthorSchema, 'talktoAuthor');
+const becomeAStarModel = mongoose.model('becomeAStar', BecomeAStarSchema, 'becomeAStar');
 const policyModel = mongoose.model('policy', PolicySchema, 'policy');
 const userAgreementModel=  mongoose.model('userAgreement', UserAgreementSchema, 'userAgreement');
 const tndCModel=  mongoose.model('tndC', TndCSchema, 'tndC')
 const richTextCModel=  mongoose.model('richText', RichTextSchema, 'richText')
 
-export { heroModel, characterModel, overviewModel, authorModel,headerModel, offerBannerModel, fomoModel, ultimateModel, bookModel,refundModel ,testimonalModel,policyModel,userAgreementModel,tndCModel,richTextCModel};
+export { heroModel, characterModel, overviewModel,talkToAuthorModel,becomeAStarModel, authorModel,headerModel, offerBannerModel, fomoModel, ultimateModel, bookModel,refundModel ,testimonalModel,policyModel,userAgreementModel,tndCModel,richTextCModel};

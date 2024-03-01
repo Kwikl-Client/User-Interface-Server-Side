@@ -1,11 +1,13 @@
-import { heroModel, characterModel, overviewModel, authorModel, offerBannerModel,
-  fomoModel, ultimateModel, bookModel,refundModel, testimonalModel,policyModel, userAgreementModel, tndCModel,richTextCModel, headerModel  } from "../models/contentModel.js";
+import {
+  heroModel, characterModel, overviewModel, authorModel, offerBannerModel,
+  fomoModel, ultimateModel, bookModel, refundModel, testimonalModel, policyModel, userAgreementModel, tndCModel, richTextCModel, headerModel, talkToAuthorModel, becomeAStarModel
+} from "../models/contentModel.js";
 import mammoth from "mammoth";
 import customerModel from "../models/customerModel.js";
 
-export const editHero = async(req, res) => {
+export const editHero = async (req, res) => {
   try {
-    const {titleText, shortDescription, originalPrice, offerPrice} = req.body;
+    const { titleText, shortDescription, originalPrice, offerPrice } = req.body;
     const hero = await heroModel.findOne({});
     hero.titleText = titleText || hero.titleText;
     hero.shortDescription = shortDescription || hero.shortDescription;
@@ -20,16 +22,17 @@ export const editHero = async(req, res) => {
     });
   }
   catch (error) {
-      console.error('Error processing form data:', error);
-      return res.status(500).json({success: false, message: 'Internal server error', error: error.message,
+    console.error('Error processing form data:', error);
+    return res.status(500).json({
+      success: false, message: 'Internal server error', error: error.message,
     });
   }
 };
 
-export const editCharacters = async(req, res) => {
+export const editCharacters = async (req, res) => {
   try {
-    const {_id} = req.params;
-    const {characterName, shortDescription, briefDescription}=req.body
+    const { _id } = req.params;
+    const { characterName, shortDescription, briefDescription } = req.body
     const character = await characterModel.findById(_id);
     // character.heading = heading || character.heading;
     // character.subHeading = subHeading || character.subHeading;
@@ -45,15 +48,16 @@ export const editCharacters = async(req, res) => {
     });
   }
   catch (error) {
-      console.error('Error processing form data:', error);
-      return res.status(500).json({success: false, message: 'Internal server error', error: error.message,
+    console.error('Error processing form data:', error);
+    return res.status(500).json({
+      success: false, message: 'Internal server error', error: error.message,
     });
   }
 };
 
-export const editOverview = async(req, res) => {
+export const editOverview = async (req, res) => {
   try {
-    const {subHeading,overallTitle, cards} = req.body;
+    const { subHeading, overallTitle, cards } = req.body;
     const overview = await overviewModel.findOne({});
     overview.subHeading = subHeading || overview.subHeading;
     overview.overallTitle = overallTitle || overview.overallTitle;
@@ -67,8 +71,9 @@ export const editOverview = async(req, res) => {
     });
   }
   catch (error) {
-      console.error('Error processing form data:', error);
-      return res.status(500).json({success: false, message: 'Internal server error', error: error.message,
+    console.error('Error processing form data:', error);
+    return res.status(500).json({
+      success: false, message: 'Internal server error', error: error.message,
     });
   }
 };
@@ -79,7 +84,7 @@ export const editHeader = async (req, res) => {
     const { menu1: newMenu1, menu2: newMenu2, menu3: newMenu3, menu4: newMenu4 } = req.body;
     console.log(req.body);
     let header = await headerModel.findOne({});
-    
+
     // Check if header is null
     if (!header) {
       header = new headerModel(); // Create a new header if it doesn't exist
@@ -106,9 +111,9 @@ export const editHeader = async (req, res) => {
   }
 };
 
-export const editAuthor = async(req, res) => {
+export const editAuthor = async (req, res) => {
   try {
-    const {heading,name, shortDescription, briefDescription} = req.body;
+    const { heading, name, shortDescription, briefDescription } = req.body;
     const author = await authorModel.findOne({});
     author.heading = heading || author.heading;
     author.name = name || author.name;
@@ -123,14 +128,15 @@ export const editAuthor = async(req, res) => {
     });
   }
   catch (error) {
-      console.error('Error processing form data:', error);
-      return res.status(500).json({success: false, message: 'Internal server error', error: error.message,
+    console.error('Error processing form data:', error);
+    return res.status(500).json({
+      success: false, message: 'Internal server error', error: error.message,
     });
   }
 };
-export const editFomoAuthor = async(req, res) => {
+export const editFomoAuthor = async (req, res) => {
   try {
-    const {heading,name, shortDescription, briefDescription} = req.body;
+    const { heading, name, shortDescription, briefDescription } = req.body;
     const author = await fomoModel.findOne({});
     author.heading = heading || author.heading;
     author.name = name || author.name;
@@ -145,8 +151,9 @@ export const editFomoAuthor = async(req, res) => {
     });
   }
   catch (error) {
-      console.error('Error processing form data:', error);
-      return res.status(500).json({success: false, message: 'Internal server error', error: error.message,
+    console.error('Error processing form data:', error);
+    return res.status(500).json({
+      success: false, message: 'Internal server error', error: error.message,
     });
   }
 };
@@ -154,7 +161,7 @@ export const editRefund = async (req, res) => {
   try {
     const { heading, subHeading, tagLine, description } = req.body;
     let refund = await refundModel.findOne({});
-    
+
     if (!refund) {
       // If no document exists, create a new one
       refund = new refundModel();
@@ -183,9 +190,9 @@ export const editRefund = async (req, res) => {
 };
 export const editPolicy = async (req, res) => {
   try {
-    const { paragraph1, paragraph2, paragraph3,secondHeading,thirdHeading} = req.body;
+    const { paragraph1, paragraph2, paragraph3, secondHeading, thirdHeading } = req.body;
     let policy = await policyModel.findOne({});
-    
+
     if (!policy) {
       // If no document exists, create a new one
       policy = new policyModel();
@@ -213,11 +220,65 @@ export const editPolicy = async (req, res) => {
     });
   }
 };
+export const editTalkToAuthor = async (req, res) => {
+  try {
+    const { content } = req.body;
+    let talk2Author = await talkToAuthorModel.findOne({});
+    if (!talk2Author) {
+      talk2Author = new talkToAuthorModel();
+    }
+
+    talk2Author.content = content || talk2Author.content;
+
+    await talk2Author.save();
+
+    return res.json({
+      success: true,
+      message: 'talk2Author data edited successfully',
+      data: talk2Author
+    });
+  } catch (error) {
+    console.error('Error processing form data:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Internal server error',
+      error: error.message,
+    });
+  }
+};
+export const editBecomeAStar = async (req, res) => {
+  try {
+    const { label1, userType,subscription,italicTagline,quote } = req.body;
+    let becomeAStar = await becomeAStarModel.findOne({});
+    if (!becomeAStar) {
+      becomeAStar = new becomeAStarModel();
+    }
+    becomeAStar.label1 = label1 || becomeAStar.label1;
+    becomeAStar.userType = userType || becomeAStar.userType;
+    becomeAStar.subscription = subscription || becomeAStar.subscription;
+    becomeAStar.italicTagline = italicTagline || becomeAStar.italicTagline;
+    becomeAStar.quote = quote || becomeAStar.quote;
+
+    await becomeAStar.save();
+    return res.json({
+      success: true,
+      message: 'becomeAStar data edited successfully',
+      data: becomeAStar
+    });
+  } catch (error) {
+    console.error('Error processing form data:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Internal server error',
+      error: error.message,
+    });
+  }
+};
 export const editUserAgreement = async (req, res) => {
   try {
-    const { paragraph1, paragraph2, paragraph3,secondHeading,thirdHeading} = req.body;
+    const { paragraph1, paragraph2, paragraph3, secondHeading, thirdHeading } = req.body;
     let userAgreement = await userAgreementModel.findOne({});
-    
+
     if (!userAgreement) {
       // If no document exists, create a new one
       userAgreement = new userAgreementModel();
@@ -247,9 +308,9 @@ export const editUserAgreement = async (req, res) => {
 };
 export const editTndC = async (req, res) => {
   try {
-    const { paragraph1, paragraph2, paragraph3,secondHeading,thirdHeading} = req.body;
+    const { paragraph1, paragraph2, paragraph3, secondHeading, thirdHeading } = req.body;
     let tndC = await tndCModel.findOne({});
-    
+
     if (!tndC) {
       // If no document exists, create a new one
       tndC = new tndCModel();
@@ -277,9 +338,9 @@ export const editTndC = async (req, res) => {
     });
   }
 };
-export const editReviews = async(req, res) => {
+export const editReviews = async (req, res) => {
   try {
-    const {name, profession,feedback} = req.body;
+    const { name, profession, feedback } = req.body;
     const reviews = await testimonalModel.findOne({});
     reviews.name = name || reviews.name;
     reviews.profession = profession || reviews.profession;
@@ -292,14 +353,15 @@ export const editReviews = async(req, res) => {
     });
   }
   catch (error) {
-      console.error('Error processing form data:', error);
-      return res.status(500).json({success: false, message: 'Internal server error', error: error.message,
+    console.error('Error processing form data:', error);
+    return res.status(500).json({
+      success: false, message: 'Internal server error', error: error.message,
     });
   }
 };
 export const editUltimate = async (req, res) => {
   try {
-    const { titleText, shortDescription, originalPrice, offerPrice,image } = req.body;
+    const { titleText, shortDescription, originalPrice, offerPrice, image } = req.body;
     let hero = await ultimateModel.findOne({});
     if (!hero) {
       hero = new ultimateModel({
@@ -335,9 +397,9 @@ export const editUltimate = async (req, res) => {
   }
 };
 
-export const editOffer = async(req, res) => {
+export const editOffer = async (req, res) => {
   try {
-    const {cutoffDate, price} = req.body;
+    const { cutoffDate, price } = req.body;
     const offer = await offerBannerModel.findOne({});
     offer.cutoffDate = cutoffDate || offer.cutoffDate;
     offer.price = price || offer.price;
@@ -349,14 +411,15 @@ export const editOffer = async(req, res) => {
     });
   }
   catch (error) {
-      console.error('Error processing form data:', error);
-      return res.status(500).json({success: false, message: 'Internal server error', error: error.message,
+    console.error('Error processing form data:', error);
+    return res.status(500).json({
+      success: false, message: 'Internal server error', error: error.message,
     });
   }
 };
 
 
-export const getHero = async(req, res) => {
+export const getHero = async (req, res) => {
   try {
     const heroData = await heroModel.findOne({});
     return res.json({
@@ -366,13 +429,14 @@ export const getHero = async(req, res) => {
     });
   }
   catch (error) {
-      console.error(error);
-      return res.status(500).json({success: false, message: 'Internal server error', error: error.message,
+    console.error(error);
+    return res.status(500).json({
+      success: false, message: 'Internal server error', error: error.message,
     });
   }
 };
 
-export const getCharacters = async(req, res) => {
+export const getCharacters = async (req, res) => {
   try {
     const charactersData = await characterModel.find({});
     return res.json({
@@ -382,8 +446,9 @@ export const getCharacters = async(req, res) => {
     });
   }
   catch (error) {
-      console.error(error);
-      return res.status(500).json({success: false, message: 'Internal server error', error: error.message,
+    console.error(error);
+    return res.status(500).json({
+      success: false, message: 'Internal server error', error: error.message,
     });
   }
 };
@@ -398,13 +463,14 @@ export const getOverview = async (req, res) => {
     });
   }
   catch (error) {
-      console.error(error);
-      return res.status(500).json({success: false, message: 'Internal server error', error: error.message,
+    console.error(error);
+    return res.status(500).json({
+      success: false, message: 'Internal server error', error: error.message,
     });
   }
 };
 
-export const getAuthor = async(req, res) => {
+export const getAuthor = async (req, res) => {
   try {
     const authorData = await authorModel.findOne({});
     return res.json({
@@ -415,10 +481,10 @@ export const getAuthor = async(req, res) => {
   }
   catch (error) {
     console.error(error);
-    return res.status(500).json({success: false, message: 'Internal server error', error: error.message});
+    return res.status(500).json({ success: false, message: 'Internal server error', error: error.message });
   }
 };
-export const getHeader = async(req, res) => {
+export const getHeader = async (req, res) => {
   try {
     const headerData = await headerModel.findOne({});
     return res.json({
@@ -429,10 +495,10 @@ export const getHeader = async(req, res) => {
   }
   catch (error) {
     console.error(error);
-    return res.status(500).json({success: false, message: 'Internal server error', error: error.message});
+    return res.status(500).json({ success: false, message: 'Internal server error', error: error.message });
   }
 };
-export const getRefund = async(req, res) => {
+export const getRefund = async (req, res) => {
   try {
     const refundData = await refundModel.findOne({});
     return res.json({
@@ -443,13 +509,13 @@ export const getRefund = async(req, res) => {
   }
   catch (error) {
     console.error(error);
-    return res.status(500).json({success: false, message: 'Internal server error', error: error.message});
+    return res.status(500).json({ success: false, message: 'Internal server error', error: error.message });
   }
 };
 export const getReviews = async (req, res) => {
   try {
     const allCustomersData = await customerModel.find({});
-    
+
     const reviews = allCustomersData.flatMap((customerData) =>
       customerData.reviews.map((review, index) => ({
         id: index + 1,
@@ -460,7 +526,7 @@ export const getReviews = async (req, res) => {
         reviewText: review.reviewText || null,
       }))
     );
-    
+
     return res.json({
       success: true,
       message: 'Review data received successfully',
@@ -476,7 +542,7 @@ export const getReviews = async (req, res) => {
   }
 };
 
-export const getPolicy = async(req, res) => {
+export const getPolicy = async (req, res) => {
   try {
     const policyData = await policyModel.findOne({});
     return res.json({
@@ -487,10 +553,38 @@ export const getPolicy = async(req, res) => {
   }
   catch (error) {
     console.error(error);
-    return res.status(500).json({success: false, message: 'Internal server error', error: error.message});
+    return res.status(500).json({ success: false, message: 'Internal server error', error: error.message });
   }
 };
-export const getUserAgreement = async(req, res) => {
+export const getTalkToAuthor = async (req, res) => {
+  try {
+    const talk2Author = await talkToAuthorModel.findOne({});
+    return res.json({
+      success: true,
+      message: 'talk2Author data received successfully',
+      data: talk2Author
+    });
+  }
+  catch (error) {
+    console.error(error);
+    return res.status(500).json({ success: false, message: 'Internal server error', error: error.message });
+  }
+};
+export const getBecomeAStar = async (req, res) => {
+  try {
+    const becomeAStar = await becomeAStarModel.findOne({});
+    return res.json({
+      success: true,
+      message: 'becomeAStar data received successfully',
+      data: becomeAStar
+    });
+  }
+  catch (error) {
+    console.error(error);
+    return res.status(500).json({ success: false, message: 'Internal server error', error: error.message });
+  }
+};
+export const getUserAgreement = async (req, res) => {
   try {
     const agreementData = await userAgreementModel.findOne({});
     return res.json({
@@ -501,24 +595,24 @@ export const getUserAgreement = async(req, res) => {
   }
   catch (error) {
     console.error(error);
-    return res.status(500).json({success: false, message: 'Internal server error', error: error.message});
+    return res.status(500).json({ success: false, message: 'Internal server error', error: error.message });
   }
 };
-export const getTndC = async(req, res) => {
+export const getTndC = async (req, res) => {
   try {
     const tndCData = await tndCModel.findOne({});
     return res.json({
       success: true,
-      message: 'policy data received successfully',
+      message: 'tndCData data received successfully',
       data: tndCData
     });
   }
   catch (error) {
     console.error(error);
-    return res.status(500).json({success: false, message: 'Internal server error', error: error.message});
+    return res.status(500).json({ success: false, message: 'Internal server error', error: error.message });
   }
 };
-export const getOffer = async(req, res) => {
+export const getOffer = async (req, res) => {
   try {
     const offerBannerData = await offerBannerModel.findOne({});
     return res.json({
@@ -528,12 +622,13 @@ export const getOffer = async(req, res) => {
     });
   }
   catch (error) {
-      console.error(error);
-      return res.status(500).json({success: false, message: 'Internal server error', error: error.message,
+    console.error(error);
+    return res.status(500).json({
+      success: false, message: 'Internal server error', error: error.message,
     });
   }
 };
-export const getUltimateHero = async(req, res) => {
+export const getUltimateHero = async (req, res) => {
   try {
     const heroData = await ultimateModel.findOne({});
     return res.json({
@@ -543,13 +638,14 @@ export const getUltimateHero = async(req, res) => {
     });
   }
   catch (error) {
-      console.error(error);
-      return res.status(500).json({success: false, message: 'Internal server error', error: error.message,
+    console.error(error);
+    return res.status(500).json({
+      success: false, message: 'Internal server error', error: error.message,
     });
   }
 };
 
-export const getFomoAuthor = async(req, res) => {
+export const getFomoAuthor = async (req, res) => {
   try {
     const fomoauthorData = await fomoModel.findOne({});
     return res.json({
@@ -560,16 +656,16 @@ export const getFomoAuthor = async(req, res) => {
   }
   catch (error) {
     console.error(error);
-    return res.status(500).json({success: false, message: 'Internal server error', error: error.message});
+    return res.status(500).json({ success: false, message: 'Internal server error', error: error.message });
   }
 };
 
-export const getBook = async(req, res) => {
+export const getBook = async (req, res) => {
   try {
     const book = await bookModel.find();
     let requiredFormat = {};
-    for(const item of book)
-      requiredFormat[item.chapterName]=item.content
+    for (const item of book)
+      requiredFormat[item.chapterName] = item.content
     console.log("abc");
     return res.json({
       success: true,
@@ -579,45 +675,45 @@ export const getBook = async(req, res) => {
   }
   catch (error) {
     console.error('Error processing form data:', error);
-    return res.status(500).json({success: false, message: 'Internal server error', error: error});
+    return res.status(500).json({ success: false, message: 'Internal server error', error: error });
   }
 }
 
 export const getFreeBook = async (req, res) => {
-//   try {
-//     const books = await bookModel.find(); // Retrieve books from the database
+  //   try {
+  //     const books = await bookModel.find(); // Retrieve books from the database
 
-//     let formattedBooks = {};
-//     for (const book of books) {
-//       if (book && book.content && book.content.buffer) {
-//         const { value } = await mammoth.extractRawText({ arrayBuffer: Buffer.from(book.content.buffer) });
-        
-//         const htmlContent = `<div>${value}</div>`; // Wrapping in <div> for better structure
+  //     let formattedBooks = {};
+  //     for (const book of books) {
+  //       if (book && book.content && book.content.buffer) {
+  //         const { value } = await mammoth.extractRawText({ arrayBuffer: Buffer.from(book.content.buffer) });
 
-//         formattedBooks[book.chapterName] = htmlContent;
-//       } else {
-//         console.error(`Skipping book with missing or invalid content: ${JSON.stringify(book)}`);
-//       }
-//     }
+  //         const htmlContent = `<div>${value}</div>`; // Wrapping in <div> for better structure
 
-//     return res.json({
-//       success: true,
-//       message: 'Books fetched successfully',
-//       data: formattedBooks,
-//     });
-//   } catch (error) {
-//     console.error('Error fetching books:', error);
-//     return res.status(500).json({
-//       success: false,
-//       message: 'Internal server error',
-//       error: error,
-//     });
-//   }
-// };
+  //         formattedBooks[book.chapterName] = htmlContent;
+  //       } else {
+  //         console.error(`Skipping book with missing or invalid content: ${JSON.stringify(book)}`);
+  //       }
+  //     }
+
+  //     return res.json({
+  //       success: true,
+  //       message: 'Books fetched successfully',
+  //       data: formattedBooks,
+  //     });
+  //   } catch (error) {
+  //     console.error('Error fetching books:', error);
+  //     return res.status(500).json({
+  //       success: false,
+  //       message: 'Internal server error',
+  //       error: error,
+  //     });
+  //   }
+  // };
   try {
     const book = await bookModel.find();
     let requiredFormat = {};
-    for(const item of book){
+    for (const item of book) {
       const temp = [...item.content]
       console.log(item.content)
       temp.splice(2);
@@ -633,10 +729,10 @@ export const getFreeBook = async (req, res) => {
   }
   catch (error) {
     console.error('Error processing form data:', error);
-    return res.status(500).json({success: false, message: 'Internal server error', error: error});
+    return res.status(500).json({ success: false, message: 'Internal server error', error: error });
   }
 }
- export const richText = async(req, res)=>{
+export const richText = async (req, res) => {
   try {
     const { content } = req.body;
 
@@ -649,7 +745,7 @@ export const getFreeBook = async (req, res) => {
       data: newRichText,
     });
   } catch (error) {
-    console.error('Error saving content:', error);s
+    console.error('Error saving content:', error); s
     return res.status(500).json({
       success: false,
       message: 'Internal server error',
@@ -657,7 +753,7 @@ export const getFreeBook = async (req, res) => {
     });
   }
 }
- 
+
 export const insertChapter = async (req, res) => {
   try {
     await bookModel.insertMany(req.body, { preserveWhiteSpace: true });
@@ -674,7 +770,7 @@ export const insertChapter = async (req, res) => {
   }
 }
 
-export const getChapters = async(req, res) => {
+export const getChapters = async (req, res) => {
   try {
     const projection = { _id: 1, chapterName: 1 };
     const chapters = await bookModel.find({}, projection);
@@ -686,13 +782,13 @@ export const getChapters = async(req, res) => {
   }
   catch (error) {
     console.error('Error processing form data:', error);
-    return res.status(500).json({success: false, message: 'Internal server error', error: error});
+    return res.status(500).json({ success: false, message: 'Internal server error', error: error });
   }
 }
 
-export const deleteChapter =async(req, res)=>{
+export const deleteChapter = async (req, res) => {
   try {
-    const {id} = req.params;
+    const { id } = req.params;
     await bookModel.deleteOne({ _id: id });
     const projection = { _id: 1, chapterName: 1 };
     const chapters = await bookModel.find({}, projection);
@@ -704,6 +800,6 @@ export const deleteChapter =async(req, res)=>{
   }
   catch (error) {
     console.error('Error processing form data:', error);
-    return res.status(500).json({success: false, message: 'Internal server error', error: error});
+    return res.status(500).json({ success: false, message: 'Internal server error', error: error });
   }
 }
