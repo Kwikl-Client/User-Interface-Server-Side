@@ -2,8 +2,8 @@ import express from 'express';
 import { protect } from '../middlewares/authmiddlewares.js';
 import { editHero, editCharacters, editOverview, editAuthor, editOffer, editUltimate, editFomoAuthor,editHeader,
 getHero, getCharacters, getOverview, getAuthor,getHeader, getOffer, getUltimateHero, getFomoAuthor,
-getBook, getFreeBook, insertChapter, getChapters, deleteChapter, editRefund, getRefund, 
-editReviews, getReviews, editPolicy, getPolicy, editUserAgreement, getUserAgreement, editTndC, getTndC} from '../controllers/contentController.js';
+getBook, getFreeBook, insertChapter, getChapters, deleteChapter, editRefund, getRefund, getTalkToAuthor,editTalkToAuthor,
+editReviews, getReviews, editPolicy, getPolicy, editUserAgreement, getUserAgreement, editTndC, getTndC, editBecomeAStar, getBecomeAStar} from '../controllers/contentController.js';
 import upload from '../middlewares/multermiddlewares.js';
 import uploadImg from '../middlewares/uploadFilemiddlewares.js';
 const ContentRoutes = express.Router();
@@ -15,6 +15,8 @@ ContentRoutes.patch('/editAuthor', upload.fields([{ name: 'image', maxCount: 1 }
 ContentRoutes.patch('/editHeader', upload.fields([{ name: 'image', maxCount: 1 },]), uploadImg, editHeader);
 ContentRoutes.patch('/editOffer', editOffer);
 ContentRoutes.patch('/editPolicy', editPolicy);
+ContentRoutes.patch('/editTalkToAuthor', editTalkToAuthor);
+ContentRoutes.patch('/editBecomeAStar', editBecomeAStar);
 ContentRoutes.patch('/editAgreement', editUserAgreement);
 ContentRoutes.patch('/editTndC', editTndC);
 ContentRoutes.patch('/editUltimate',upload.fields([{ name: 'image', maxCount: 1 },]), uploadImg, editUltimate);
@@ -31,6 +33,8 @@ ContentRoutes.get('/getAuthor', getAuthor);
 ContentRoutes.get('/getHeader', getHeader);
 ContentRoutes.get('/getOffer', getOffer);
 ContentRoutes.get('/getPolicy', getPolicy);
+ContentRoutes.get('/getTalktoAuthor', getTalkToAuthor);
+ContentRoutes.get('/getBecomeAStar', getBecomeAStar);
 ContentRoutes.get('/getTndC', getTndC);
 ContentRoutes.get('/getAgreement', getUserAgreement);
 ContentRoutes.get('/getFomoAuthor', getFomoAuthor);

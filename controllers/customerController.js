@@ -1,4 +1,5 @@
 import jwt from 'jsonwebtoken';
+import moment from 'moment-timezone';
 import { stripe } from "./paymentController.js";
 import customerModel from "../models/customerModel.js";
 import { encrypt, verifyPwd } from "../utils/hasher.js";
@@ -129,6 +130,26 @@ export const getCustomersBetweenDates = async (req, res) => {
     catch (error) {
         console.log(error)
         return res.status(500).json({ success: false, message: 'Internal Server error', data: null });
+    }
+};
+export const customerCount = async (req, res) => {
+    try {
+        const todayStart = moment().tz('America/New_York').startOf('day').toDate();
+        const todayEnd = moment().tz('America/New_York').endOf('day').toDate();
+        const userCount = await customerModel.countDocuments({ createdAt: { $gte: todayStart, $lte: todayEnd } });
+
+        let result;
+        if (userCount === 0) {
+            result = 99;
+        } else {
+            // Subtract user count from 99
+            result = 99 - userCount;
+        }
+
+        res.json({ date: todayStart, result });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Internal Server Error' });
     }
 };
 export const editCustomerDetails = async (req, res) => {
