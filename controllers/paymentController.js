@@ -16,7 +16,7 @@ export const createPaymentIntent = async (req, res) => {
     });
     let currency;
     let unitAmount;
-    if (customerCount < 99) {
+    if (customerCount < 1) {
       unitAmount = 0.5 * 100; 
       const stripeCountry = 'US'; // Replace with the actual Stripe country code from your user's account
       const countryInfo = await stripe.countrySpecs.retrieve(stripeCountry);
@@ -41,7 +41,7 @@ export const createPaymentIntent = async (req, res) => {
         },
       ],
       mode: "payment",
-      success_url: `http://localhost:3001/success?&email=${email}&name=${name}&sessionId={CHECKOUT_SESSION_ID}`,
+      success_url: `http://54.90.125.251/success?&email=${email}&name=${name}&sessionId={CHECKOUT_SESSION_ID}`,
       cancel_url: `http://54.90.125.251/`,
       customer_email: email,
     });
