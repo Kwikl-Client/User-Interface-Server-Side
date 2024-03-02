@@ -7,12 +7,14 @@ import customerModel from "../models/customerModel.js";
 
 export const editHero = async (req, res) => {
   try {
-    const { titleText, shortDescription, originalPrice, offerPrice } = req.body;
+    const { titleText, shortDescription, originalPrice, offerPrice,button1,button2 } = req.body;
     const hero = await heroModel.findOne({});
     hero.titleText = titleText || hero.titleText;
     hero.shortDescription = shortDescription || hero.shortDescription;
     hero.originalPrice = originalPrice || hero.originalPrice;
     hero.offerPrice = offerPrice || hero.offerPrice;
+    hero.button1 = button1 || hero.button1;
+    hero.button2 = button2 || hero.button2;
     hero.image = req.picUrls?.image || hero.image;
     await hero.save();
     return res.json({
@@ -57,10 +59,11 @@ export const editCharacters = async (req, res) => {
 
 export const editOverview = async (req, res) => {
   try {
-    const { subHeading, overallTitle, cards } = req.body;
+    const { subHeading, overallTitle, cards,button } = req.body;
     const overview = await overviewModel.findOne({});
     overview.subHeading = subHeading || overview.subHeading;
     overview.overallTitle = overallTitle || overview.overallTitle;
+    overview.button = button || overview.button;
     overview.cards = JSON.parse(cards) || overview.cards;
     overview.image = req.picUrls?.image || overview.image;
     await overview.save();
@@ -113,12 +116,13 @@ export const editHeader = async (req, res) => {
 
 export const editAuthor = async (req, res) => {
   try {
-    const { heading, name, shortDescription, briefDescription } = req.body;
+    const { heading, name, shortDescription, briefDescription,button } = req.body;
     const author = await authorModel.findOne({});
     author.heading = heading || author.heading;
     author.name = name || author.name;
     author.shortDescription = shortDescription || author.shortDescription;
     author.briefDescription = briefDescription || author.briefDescription;
+    author.button = button || author.button;
     author.image = req.picUrls?.image || author.image;
     await author.save();
     return res.json({
@@ -136,12 +140,13 @@ export const editAuthor = async (req, res) => {
 };
 export const editFomoAuthor = async (req, res) => {
   try {
-    const { heading, name, shortDescription, briefDescription } = req.body;
+    const { heading, name, shortDescription, briefDescription,button } = req.body;
     const author = await fomoModel.findOne({});
     author.heading = heading || author.heading;
     author.name = name || author.name;
     author.shortDescription = shortDescription || author.shortDescription;
     author.briefDescription = briefDescription || author.briefDescription;
+    author.button = button || author.button;
     author.image = req.picUrls?.image || author.image;
     await author.save();
     return res.json({
@@ -159,7 +164,7 @@ export const editFomoAuthor = async (req, res) => {
 };
 export const editRefund = async (req, res) => {
   try {
-    const { heading, subHeading, tagLine, description } = req.body;
+    const { heading, subHeading, tagLine, description, button } = req.body;
     let refund = await refundModel.findOne({});
 
     if (!refund) {
@@ -171,6 +176,7 @@ export const editRefund = async (req, res) => {
     refund.subHeading = subHeading || refund.subHeading;
     refund.tagLine = tagLine || refund.tagLine;
     refund.description = description || refund.description;
+    refund.button = button || refund.button;
 
     await refund.save();
 
@@ -361,7 +367,7 @@ export const editReviews = async (req, res) => {
 };
 export const editUltimate = async (req, res) => {
   try {
-    const { titleText, shortDescription, originalPrice, offerPrice, image } = req.body;
+    const { titleText, shortDescription, originalPrice, offerPrice, image, button } = req.body;
     let hero = await ultimateModel.findOne({});
     if (!hero) {
       hero = new ultimateModel({
@@ -375,6 +381,7 @@ export const editUltimate = async (req, res) => {
       hero.shortDescription = shortDescription || hero.shortDescription;
       hero.originalPrice = originalPrice || hero.originalPrice;
       hero.offerPrice = offerPrice || hero.offerPrice;
+      hero.button = button || hero.button;
       hero.image = req.picUrls?.image || hero.image;
 
     }
