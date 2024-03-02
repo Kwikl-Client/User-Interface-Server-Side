@@ -201,14 +201,15 @@ export const verifyTkn = async (req, res) => {
 export const checkEmail = async (req, res) => {
     const { email } = req.body;
     try {
-        const existingCustomer = await customerModel.findOne({email:email});
-        if (existingCustomer)
-            return res.status(200).json({ success: true, message:"Customer fetched successfully", exists: true, data: existingCustomer });
-        return res.status(400).json({ success: false, message:"Customer not found", exists: false, data: null });
-    }
-    catch (error) {
-        console.error(error);
-        return res.status(500).json({success: false, message: 'Internal Server Error', data: null });
+     const existingUser = await customerModel.findOne({email:email});
+      if (existingUser) {
+        return res.json({ exists: true });
+      } else {
+       return res.json({ exists: false });
+      }
+    } catch (error) {
+      console.error(error);
+     return res.status(500).json({ error: 'Server error' });
     }
   };
 
