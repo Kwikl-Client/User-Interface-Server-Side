@@ -23,6 +23,14 @@ const HeroSchema = mongoose.Schema(
             type: String,
             required: true,
         },
+        button1: {  
+            type: String,
+            required: true,
+        },
+        button2: {  
+            type: String,
+            required: true,
+        },
     },
     {
         timestamps: true,
