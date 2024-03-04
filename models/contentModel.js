@@ -123,6 +123,10 @@ const OverviewCardSchema = mongoose.Schema({
 
 const OverviewSchema = mongoose.Schema(
     {
+        Title: {
+            type: String,
+            required: true,
+        },
         subHeading:{
          type:String,
          required: true,
@@ -164,6 +168,49 @@ const AuthorSchema = mongoose.Schema(
             required: true,
         },
         image: {
+            type: String,
+            required: false
+        },
+    },
+    {
+      timestamps: true,
+    }
+);
+const FooterSchema = mongoose.Schema(
+    {
+        image1Content: {
+            type: String,
+            required: true,
+        },
+        image2Content: {
+            type: String,
+            required: true,
+        },
+        image3Content: {
+            type: String,
+            required: true,
+        },
+        image4Content: {
+            type: String,
+            required: true,
+        },
+        copyrights: {
+            type: String,
+            required: false
+        },
+        privacyPolicy: {
+            type: String,
+            required: false
+        },
+        userAgreement: {
+            type: String,
+            required: false
+        },
+        tAndc: {
+            type: String,
+            required: false
+        },
+        faqs: {
             type: String,
             required: false
         },
@@ -459,6 +506,7 @@ const characterModel = mongoose.model('character', CharacterSchema, 'character')
 const overviewModel = mongoose.model('overview', OverviewSchema, 'overview');
 const authorModel = mongoose.model('author', AuthorSchema, 'author');
 const headerModel = mongoose.model('header', HeaderSchema, 'header');
+const footerModel = mongoose.model('footer', FooterSchema, 'footer');
 const offerBannerModel = mongoose.model('offerBanner', OfferBannerSchema, 'offerBanner');
 const fomoModel = mongoose.model('fomo', FomoSchema, 'fomo');
 const ultimateModel = mongoose.model('ultimate', UltimateSchema, 'ultimate');
@@ -472,4 +520,4 @@ const userAgreementModel=  mongoose.model('userAgreement', UserAgreementSchema, 
 const tndCModel=  mongoose.model('tndC', TndCSchema, 'tndC')
 const richTextCModel=  mongoose.model('richText', RichTextSchema, 'richText')
 
-export { heroModel, characterModel, overviewModel,talkToAuthorModel,becomeAStarModel, authorModel,headerModel, offerBannerModel, fomoModel, ultimateModel, bookModel,refundModel ,testimonalModel,policyModel,userAgreementModel,tndCModel,richTextCModel};
+export { heroModel, characterModel,footerModel, overviewModel,talkToAuthorModel,becomeAStarModel, authorModel,headerModel, offerBannerModel, fomoModel, ultimateModel, bookModel,refundModel ,testimonalModel,policyModel,userAgreementModel,tndCModel,richTextCModel};
