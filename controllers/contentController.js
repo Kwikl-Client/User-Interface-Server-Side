@@ -1,6 +1,6 @@
 import {
   heroModel, characterModel, overviewModel, authorModel, offerBannerModel,
-  fomoModel, ultimateModel, bookModel, refundModel, testimonalModel, policyModel, userAgreementModel, tndCModel, richTextCModel, headerModel, talkToAuthorModel, becomeAStarModel
+  fomoModel, ultimateModel, bookModel, refundModel, testimonalModel, policyModel, userAgreementModel, tndCModel, richTextCModel, headerModel, talkToAuthorModel, becomeAStarModel, footerModel
 } from "../models/contentModel.js";
 import mammoth from "mammoth";
 import customerModel from "../models/customerModel.js";
@@ -59,8 +59,9 @@ export const editCharacters = async (req, res) => {
 
 export const editOverview = async (req, res) => {
   try {
-    const { subHeading, overallTitle, cards,button } = req.body;
+    const { title,subHeading, overallTitle, cards,button } = req.body;
     const overview = await overviewModel.findOne({});
+    overview.title = title || overview.title;
     overview.subHeading = subHeading || overview.subHeading;
     overview.overallTitle = overallTitle || overview.overallTitle;
     overview.button = button || overview.button;
@@ -71,6 +72,37 @@ export const editOverview = async (req, res) => {
       success: true,
       message: 'Overview data edited successfully',
       data: overview
+    });
+  }
+  catch (error) {
+    console.error('Error processing form data:', error);
+    return res.status(500).json({
+      success: false, message: 'Internal server error', error: error.message,
+    });
+  }
+};
+export const editFooter = async (req, res) => {
+  try {
+    const { image1Content,image2Content, image3Content, image4Content,copyrights,privacyPolicy,userAgreement,tAndc,faqs } = req.body;
+    let footerData = await footerModel.findOne({});
+    if (!footerData) {
+      // If no footer data found, create a new document
+      footerData = new footerModel();
+    }
+    footerData.image1Content = image1Content || footerData.image1Content;
+    footerData.image2Content = image2Content || footerData.image2Content;
+    footerData.image3Content = image3Content || footerData.image3Content;
+    footerData.image4Content = image4Content || footerData.image4Content;
+    footerData.copyrights = copyrights || footerData.copyrights;
+    footerData.privacyPolicy = privacyPolicy || footerData.privacyPolicy;
+    footerData.userAgreement = userAgreement || footerData.userAgreement;
+    footerData.tAndc = tAndc || footerData.tAndc;
+    footerData.faqs = faqs || footerData.faqs;
+    await footerData.save();
+    return res.json({
+      success: true,
+      message: 'footer data edited successfully',
+      data: footerData
     });
   }
   catch (error) {
@@ -476,7 +508,22 @@ export const getOverview = async (req, res) => {
     });
   }
 };
-
+export const getFooter = async (req, res) => {
+  try {
+    const footerData = await footerModel.findOne({});
+    return res.json({
+      success: true,
+      message: 'footer data fetched successfully',
+      data: footerData
+    });
+  }
+  catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      success: false, message: 'Internal server error', error: error.message,
+    });
+  }
+};
 export const getAuthor = async (req, res) => {
   try {
     const authorData = await authorModel.findOne({});
