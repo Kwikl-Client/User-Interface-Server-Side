@@ -113,9 +113,7 @@ export const editFooter = async (req, res) => {
   }
 };
 export const editHeader = async (req, res) => {
-  console.log("in function");
   try {
-    console.log("in try");
     const { menu1: newMenu1, menu2: newMenu2, menu3: newMenu3, menu4: newMenu4 } = req.body;
     console.log(req.body);
     let header = await headerModel.findOne({});
@@ -720,7 +718,6 @@ export const getBook = async (req, res) => {
     let requiredFormat = {};
     for (const item of book)
       requiredFormat[item.chapterName] = item.content
-    console.log("abc");
     return res.json({
       success: true,
       message: 'Book fetched successfully',

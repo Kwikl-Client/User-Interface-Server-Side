@@ -48,6 +48,9 @@ const CustomerSchema = mongoose.Schema(
       enum: ['reader', 'level2', 'level3', 'level4'],
       default: 'reader'
     },
+    helpMessage:{
+      type:String,
+    },
     joinCommunityStatus: {
       type: String,
       enum: ['not raised', 'raised', 'accepted', 'declined'],

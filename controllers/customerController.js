@@ -235,6 +235,35 @@ export const raiseCommunityRequest = async (req, res) => {
         return res.status(500).json({success: false, message: 'Internal Server Error', data: null });
     }
 };
+export const messageRequest = async (req, res) => {
+    const { customId } = req.params;
+    const { message } = req.body; 
+    try {
+        const existingUser = await customerModel.findOne({customId: customId});
+        if (!existingUser)
+            return res.status(400).json({ success: false, message: 'Customer not found', data: null});
+        
+        if (message) {
+            existingUser.helpMessage = message; 
+            await existingUser.save();
+        }
+        
+        const userEmail = existingUser.email;
+        await sendMail(userEmail, "Request for Help", `Thanks for requesting help. We will get back to you shortly.`);
+
+        return res.status(200).json({
+            success: true,
+            message: `Message sent successfully`,
+            data: existingUser
+        });
+    }
+    catch (error) {
+        console.log(error)
+        return res.status(500).json({ success: false, message: 'Internal Server Error', data: null });
+    }
+};
+
+
 
 export const submitReview = async (req, res) => {
     const { customerId } = req.params;
@@ -256,7 +285,7 @@ export const submitReview = async (req, res) => {
       return res.status(500).json({ success: false, message: 'Internal Server Error', data: null });
     }
   };
-  
+ 
 export const deleteCustomer = async (req, res) => {
     const { email } = req.params; // Assuming the email is passed as a parameter in the URL
     try {
