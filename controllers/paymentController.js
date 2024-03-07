@@ -109,8 +109,8 @@ export const createOfferPaymentIntent = async (req, res) => {
                 },
             ],
             mode: "payment",
-            success_url: `http://localhost:7000/success?&email=${email}&name=${name}&sessionId={CHECKOUT_SESSION_ID}`,
-            cancel_url: "http://localhost:7000/cancel",
+            success_url: `http://18.209.7.74:7000/success?&email=${email}&name=${name}&sessionId={CHECKOUT_SESSION_ID}`,
+            cancel_url: "http://18.209.7.74:7000/cancel",
             customer_email: email,
         });
         await customerModel.create({ email: email, stripeDetails: session.id });
