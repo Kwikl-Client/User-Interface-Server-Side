@@ -59,6 +59,10 @@ const CharacterSchema = mongoose.Schema(
             type: String,
             required: true,
         },
+        briefDescription2: {
+            type: String,
+            required: true,
+        },
         image: {
             type: String,
             required: true,
@@ -430,7 +434,52 @@ const PolicySchema = mongoose.Schema(
         paragraph3:{
             type: String,
             required: true,
+        },
+        fourthHeading:{
+            type: String,
+            required: true,
+        },
+        paragraph4:{
+            type: String,
+            required: true,
+        },
+        fivthHeading:{
+            type: String,
+            required: true,
+        },
+        paragraph5:{
+            type: String,
+            required: true,
+        },
+        sixthHeading:{
+            type: String,
+            required: true,
+        },
+        paragraph6:{
+            type: String,
+            required: true,
+        },
+        secondList:{
+            type: String,
+            required: true,
+        },
+        firstList:{
+            type: String,
+            required: true,
+        },
+        thirdList:{
+            type: String,
+            required: true,
+        },
+        fivthList:{
+            type: String,
+            required: true,
+        },
+        sixthList:{
+            type: String,
+            required: true,
         }
+
     },
     {
         timestamps: true,
@@ -455,6 +504,50 @@ const UserAgreementSchema = mongoose.Schema(
             required: true,
         },
         paragraph3:{
+            type: String,
+            required: true,
+        },
+        fourthHeading:{
+            type: String,
+            required: true,
+        },
+        paragraph4:{
+            type: String,
+            required: true,
+        },
+        fivthHeading:{
+            type: String,
+            required: true,
+        },
+        paragraph5:{
+            type: String,
+            required: true,
+        },
+        sixthHeading:{
+            type: String,
+            required: true,
+        },
+        paragraph6:{
+            type: String,
+            required: true,
+        },
+        secondList:{
+            type: String,
+            required: true,
+        },
+        firstList:{
+            type: String,
+            required: true,
+        },
+        thirdList:{
+            type: String,
+            required: true,
+        },
+        fivthList:{
+            type: String,
+            required: true,
+        },
+        sixthList:{
             type: String,
             required: true,
         }
@@ -482,6 +575,49 @@ const TndCSchema = mongoose.Schema(
             required: true,
         },
         paragraph3:{
+            type: String,
+            required: true,
+        },fourthHeading:{
+            type: String,
+            required: true,
+        },
+        paragraph4:{
+            type: String,
+            required: true,
+        },
+        fivthHeading:{
+            type: String,
+            required: true,
+        },
+        paragraph5:{
+            type: String,
+            required: true,
+        },
+        sixthHeading:{
+            type: String,
+            required: true,
+        },
+        paragraph6:{
+            type: String,
+            required: true,
+        },
+        secondList:{
+            type: String,
+            required: true,
+        },
+        firstList:{
+            type: String,
+            required: true,
+        },
+        thirdList:{
+            type: String,
+            required: true,
+        },
+        fivthList:{
+            type: String,
+            required: true,
+        },
+        sixthList:{
             type: String,
             required: true,
         }
