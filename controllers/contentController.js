@@ -34,13 +34,14 @@ export const editHero = async (req, res) => {
 export const editCharacters = async (req, res) => {
   try {
     const { _id } = req.params;
-    const { characterName, shortDescription, briefDescription } = req.body
+    const { characterName, shortDescription, briefDescription,briefDescription2 } = req.body
     const character = await characterModel.findById(_id);
     // character.heading = heading || character.heading;
     // character.subHeading = subHeading || character.subHeading;
     character.characterName = characterName || character.characterName;
     character.shortDescription = shortDescription || character.shortDescription;
     character.briefDescription = briefDescription || character.briefDescription;
+    character.briefDescription2 = briefDescription2 || character.briefDescription2;
     character.image = req.picUrls?.image || character.image;
     await character.save();
     return res.json({
@@ -226,7 +227,8 @@ export const editRefund = async (req, res) => {
 };
 export const editPolicy = async (req, res) => {
   try {
-    const { paragraph1, paragraph2, paragraph3, secondHeading, thirdHeading } = req.body;
+    const { paragraph1, paragraph2, paragraph3, secondHeading, thirdHeading, paragraph4, paragraph5, paragraph6, fourthHeading,
+      secondList ,firstList,thirdList,fivthList,sixthList, fivthHeading, sixthHeading  } = req.body;
     let policy = await policyModel.findOne({});
 
     if (!policy) {
@@ -239,6 +241,18 @@ export const editPolicy = async (req, res) => {
     policy.paragraph2 = paragraph2 || policy.paragraph2;
     policy.thirdHeading = thirdHeading || policy.thirdHeading;
     policy.paragraph3 = paragraph3 || policy.paragraph3;
+    policy.paragraph4 = paragraph4 || policy.paragraph4;
+    policy.paragraph6 = paragraph6 || policy.paragraph6;
+    policy.fourthHeading = fourthHeading || policy.fourthHeading;
+    policy.paragraph5 = paragraph5 || policy.paragraph5;
+    policy.fivthHeading = fivthHeading || policy.fivthHeading;
+    policy.sixthHeading = sixthHeading || policy.sixthHeading;
+    policy.secondList = secondList || policy.secondList;
+    policy.firstList = firstList || policy.firstList;
+    policy.thirdList = thirdList || policy.thirdList;
+    policy.fivthList = fivthList || policy.fivthList;
+    policy.sixthList = sixthList || policy.sixthList;
+
 
     await policy.save();
 
@@ -312,7 +326,8 @@ export const editBecomeAStar = async (req, res) => {
 };
 export const editUserAgreement = async (req, res) => {
   try {
-    const { paragraph1, paragraph2, paragraph3, secondHeading, thirdHeading } = req.body;
+    const { paragraph1, paragraph2, paragraph3, secondHeading, thirdHeading, paragraph4, paragraph5, paragraph6, fourthHeading,
+      secondList ,firstList,thirdList,fivthList,sixthList, fivthHeading, sixthHeading   } = req.body;
     let userAgreement = await userAgreementModel.findOne({});
 
     if (!userAgreement) {
@@ -325,6 +340,17 @@ export const editUserAgreement = async (req, res) => {
     userAgreement.paragraph2 = paragraph2 || userAgreement.paragraph2;
     userAgreement.thirdHeading = thirdHeading || userAgreement.thirdHeading;
     userAgreement.paragraph3 = paragraph3 || userAgreement.paragraph3;
+    userAgreement.paragraph4 = paragraph4 || userAgreement.paragraph4;
+    userAgreement.paragraph6 = paragraph6 || userAgreement.paragraph6;
+    userAgreement.fourthHeading = fourthHeading || userAgreement.fourthHeading;
+    userAgreement.paragraph5 = paragraph5 || userAgreement.paragraph5;
+    userAgreement.fivthHeading = fivthHeading || userAgreement.fivthHeading;
+    userAgreement.sixthHeading = sixthHeading || userAgreement.sixthHeading;
+    userAgreement.secondList = secondList || userAgreement.secondList;
+    userAgreement.firstList = firstList || userAgreement.firstList;
+    userAgreement.thirdList = thirdList || userAgreement.thirdList;
+    userAgreement.fivthList = fivthList || userAgreement.fivthList;
+    userAgreement.sixthList = sixthList || userAgreement.sixthList;
 
     await userAgreement.save();
 
@@ -344,7 +370,8 @@ export const editUserAgreement = async (req, res) => {
 };
 export const editTndC = async (req, res) => {
   try {
-    const { paragraph1, paragraph2, paragraph3, secondHeading, thirdHeading } = req.body;
+    const { paragraph1, paragraph2, paragraph3, secondHeading, thirdHeading , paragraph4, paragraph5, paragraph6, fourthHeading,
+      secondList ,firstList,thirdList,fivthList,sixthList, fivthHeading, sixthHeading   } = req.body;
     let tndC = await tndCModel.findOne({});
 
     if (!tndC) {
@@ -357,6 +384,17 @@ export const editTndC = async (req, res) => {
     tndC.paragraph2 = paragraph2 || tndC.paragraph2;
     tndC.thirdHeading = thirdHeading || tndC.thirdHeading;
     tndC.paragraph3 = paragraph3 || tndC.paragraph3;
+    tndC.paragraph4 = paragraph4 || tndC.paragraph4;
+    tndC.paragraph6 = paragraph6 || tndC.paragraph6;
+    tndC.fourthHeading = fourthHeading || tndC.fourthHeading;
+    tndC.paragraph5 = paragraph5 || tndC.paragraph5;
+    tndC.fivthHeading = fivthHeading || tndC.fivthHeading;
+    tndC.sixthHeading = sixthHeading || tndC.sixthHeading;
+    tndC.secondList = secondList || tndC.secondList;
+    tndC.firstList = firstList || tndC.firstList;
+    tndC.thirdList = thirdList || tndC.thirdList;
+    tndC.fivthList = fivthList || tndC.fivthList;
+    tndC.sixthList = sixthList || tndC.sixthList;
 
     await tndC.save();
 
