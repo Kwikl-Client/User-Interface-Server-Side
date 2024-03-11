@@ -114,16 +114,16 @@ const CharacterSchema = mongoose.Schema(
 //     }
 // );
 
-const OverviewCardSchema = mongoose.Schema({
-    subTitle: {
-        type: String,
-        required: true,
-    },
-    briefDescription: {
-        type: String,
-        required: true,
-    },
-})
+// const OverviewCardSchema = mongoose.Schema({
+//     subTitle: {
+//         type: String,
+//         required: true,
+//     },
+//     briefDescription: {
+//         type: String,
+//         required: true,
+//     },
+// })
 
 const OverviewSchema = mongoose.Schema(
     {
@@ -139,14 +139,30 @@ const OverviewSchema = mongoose.Schema(
             type: String,
             required: true,
         },
-        cards: [{
-            type: OverviewCardSchema
-        }],
-        image: {
+        subtitle1: {
             type: String,
             required: true,
-            default: null
         },
+        briefDescription1: {
+            type: String,
+            required: true,
+        },
+        subtitle2: {
+            type: String,
+            required: true,
+        },
+        briefDescription2: {
+            type: String,
+            required: true,
+        },
+        subtitle3: {
+            type: String,
+            required: true,
+        },
+        briefDescription3: {
+            type: String,
+            required: true,
+        }
     },
     {
       timestamps: true,
