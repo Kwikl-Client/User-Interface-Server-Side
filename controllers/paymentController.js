@@ -87,8 +87,8 @@ export const updatePaymentStatus = async(req, res) => {
 export const createOfferPaymentIntent = async (req, res) => {
     const { email, name } = req.query;
     try {
-        const today = moment().startOf('day'); // Get the start of the current day
-        const tomorrow = moment(today).add(1, 'days'); // Get the start of the next day
+        const today = moment().startOf('day');
+        const tomorrow = moment(today).add(1, 'days');
         const customerCount = await customerModel.countDocuments({
             createdAt: { $gte: today.toDate(), $lt: tomorrow.toDate() }
         });
@@ -103,7 +103,7 @@ export const createOfferPaymentIntent = async (req, res) => {
                         product_data: {
                             name: "Book",
                         },
-                        unit_amount: 500 * 100 // Set unit amount to half of the original price
+                        unit_amount: 500 * 100 
                     },
                     quantity: 1,
                 },
@@ -124,18 +124,15 @@ export const totalRevenue = async (req, res) => {
   console.log("abc")
     try {
       const paymentIntents = await stripe.paymentIntents.list({
-        limit: 100, // Set an appropriate limit based on your needs
+        limit: 100,
       });
-      // console.log(paymentIntents)
       const totalRevenue = paymentIntents.data.reduce((total, paymentIntent) => {
         if (paymentIntent && paymentIntent.amount_received && paymentIntent.currency === 'USD') {
-          total += paymentIntent.amount_received / 100; // Convert amount from cents to dollars
+          total += paymentIntent.amount_received / 100; 
         }
         return total;
       }, 0);
-      // console.log(totalRevenue)
       return res.status(200).json({ success: true, message: 'Total revenue made', data:totalRevenue});
-      // console.log(totalRevenue)
     } catch (error) {
       console.error('Error fetching total revenue:', error);
       return res.status(500).json({ success: false, message: 'Internal Server Error' });

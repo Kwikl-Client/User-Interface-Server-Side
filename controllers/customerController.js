@@ -235,6 +235,35 @@ export const raiseCommunityRequest = async (req, res) => {
         return res.status(500).json({success: false, message: 'Internal Server Error', data: null });
     }
 };
+export const raiseRefundRequest = async (req, res) => {
+    const { customId } = req.params;
+
+  try {
+    const existingUser = await customerModel.findOne({ customId });
+
+    if (!existingUser) {
+      return res.status(400).json({ success: false, message: 'Customer not found', data: null });
+    }
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+    if (existingUser.createdAt > thirtyDaysAgo) {
+      existingUser.refundStatus = 'valid';
+    } else {
+      existingUser.refundStatus = 'not valid';
+    }
+    await existingUser.save();
+    return res.status(200).json({
+      success: true,
+      message: 'Refund request raised successfully',
+      data: existingUser,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ success: false, message: 'Internal Server Error', data: null });
+  }
+}
+
 export const messageRequest = async (req, res) => {
     const { customId } = req.params;
     const { message } = req.body; 
