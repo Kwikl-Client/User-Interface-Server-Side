@@ -58,7 +58,7 @@ const CustomerSchema = mongoose.Schema(
     },
     refundStatus: {
       type: String,
-      enum: ['not raised', 'raised', 'refunded', 'declined'],
+      enum: ['not valid', 'valid', 'refunded', 'declined'],
       default: 'not raised'
     },
     refundPercent: {

@@ -1,5 +1,5 @@
 import express from 'express';
-import { registerCustomer, loginCustomer, getAllCustomers, raiseCommunityRequest, editCustomerDetails, verifyTkn, checkEmail, deleteCustomer, getCustomersBetweenDates, forgotPassword, submitReview,customerCount, messageRequest } from '../controllers/customerController.js';
+import { registerCustomer, loginCustomer, getAllCustomers, raiseCommunityRequest, editCustomerDetails, verifyTkn, checkEmail, deleteCustomer, getCustomersBetweenDates, forgotPassword, submitReview,customerCount, messageRequest, raiseRefundRequest } from '../controllers/customerController.js';
 import { protect } from '../middlewares/authmiddlewares.js';
 
 const CustomerRoutes = express.Router();
@@ -13,6 +13,7 @@ CustomerRoutes.get('/verifyTkn/:token', verifyTkn);
 CustomerRoutes.post('/checkUser', checkEmail)
 CustomerRoutes.get('/deleteCustomer/:email', deleteCustomer)
 CustomerRoutes.get('/raiseCommunityRequest/:customId', raiseCommunityRequest)
+CustomerRoutes.get('/raiseRefundRequest/:customId', raiseRefundRequest);
 CustomerRoutes.post('/usersReview/:customerId',submitReview)
 CustomerRoutes.get('/getCustomersBetweenDates', getCustomersBetweenDates)
 CustomerRoutes.post('/forgotPassword', forgotPassword);
