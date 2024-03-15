@@ -263,23 +263,49 @@ export const raiseRefundRequest = async (req, res) => {
     return res.status(500).json({ success: false, message: 'Internal Server Error', data: null });
   }
 }
+export const checkMessageSent = async (req, res) => {
+    const { customId } = req.params;
+
+    try {
+        const existingUser = await customerModel.findOne({ customId: customId });
+        if (!existingUser)
+            return res.status(400).json({ success: false, message: 'Customer not found', data: null});
+
+        if (existingUser.lastHelpMessageSentAt) {
+            const timeSinceLastMessage = Date.now() - existingUser.lastHelpMessageSentAt.getTime();
+            if (timeSinceLastMessage < (24 * 60 * 60 * 1000)) {
+                return res.status(400).json({ success: false, message: 'You can only send one message in every 24 hours', data: null});
+            }
+        }
+
+        return res.status(200).json({ success: true, message: 'No message sent within last 24 hours', data: null });
+    }
+    catch (error) {
+        console.log(error);
+        return res.status(500).json({ success: false, message: 'Internal Server Error', data: null });
+    }
+};
 
 export const messageRequest = async (req, res) => {
     const { customId } = req.params;
-    const { message } = req.body; 
+    const { message } = req.body;
+    
     try {
-        const existingUser = await customerModel.findOne({customId: customId});
+        const existingUser = await customerModel.findOne({ customId: customId });
         if (!existingUser)
             return res.status(400).json({ success: false, message: 'Customer not found', data: null});
-        
-        if (message) {
-            existingUser.helpMessage = message; 
-            await existingUser.save();
-        }
-        
-        const userEmail = existingUser.email;
-        await sendMail(userEmail, "Request for Help", `Thanks for requesting help. We will get back to you shortly.`);
 
+        if (existingUser.lastHelpMessageSentAt) {
+            const timeSinceLastMessage = Date.now() - existingUser.lastHelpMessageSentAt.getTime();
+            if (timeSinceLastMessage < (24 * 60 * 60 * 1000)) {
+                return res.status(400).json({ success: false, message: 'You can only send one message in every 24 hours', data: null});
+            }
+        }
+
+        existingUser.helpMessage = message; 
+        existingUser.lastHelpMessageSentAt = new Date(); // Set the timestamp for the last help message sent
+        await existingUser.save();
+        
         return res.status(200).json({
             success: true,
             message: `Message sent successfully`,
@@ -291,8 +317,6 @@ export const messageRequest = async (req, res) => {
         return res.status(500).json({ success: false, message: 'Internal Server Error', data: null });
     }
 };
-
-
 
 export const submitReview = async (req, res) => {
     const { customerId } = req.params;

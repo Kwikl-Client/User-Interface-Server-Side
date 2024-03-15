@@ -769,58 +769,27 @@ export const getBook = async (req, res) => {
 }
 
 export const getFreeBook = async (req, res) => {
-  //   try {
-  //     const books = await bookModel.find(); // Retrieve books from the database
-
-  //     let formattedBooks = {};
-  //     for (const book of books) {
-  //       if (book && book.content && book.content.buffer) {
-  //         const { value } = await mammoth.extractRawText({ arrayBuffer: Buffer.from(book.content.buffer) });
-
-  //         const htmlContent = `<div>${value}</div>`; // Wrapping in <div> for better structure
-
-  //         formattedBooks[book.chapterName] = htmlContent;
-  //       } else {
-  //         console.error(`Skipping book with missing or invalid content: ${JSON.stringify(book)}`);
-  //       }
-  //     }
-
-  //     return res.json({
-  //       success: true,
-  //       message: 'Books fetched successfully',
-  //       data: formattedBooks,
-  //     });
-  //   } catch (error) {
-  //     console.error('Error fetching books:', error);
-  //     return res.status(500).json({
-  //       success: false,
-  //       message: 'Internal server error',
-  //       error: error,
-  //     });
-  //   }
-  // };
   try {
     const book = await bookModel.find();
     let requiredFormat = {};
     for (const item of book) {
-      const temp = [...item.content]
-      console.log(item.content)
-      temp.splice(2);
+      const temp = [...item.content];
+      temp.splice(3);
       temp.push("Please Purchase the book to view all the pages");
-      requiredFormat[item.chapterName] = temp
-      console.log(requiredFormat)
+      requiredFormat[item.chapterName] = temp;
+      console.log(requiredFormat);
     }
     return res.json({
       success: true,
       message: 'Book fetched successfully',
       data: requiredFormat
     });
-  }
-  catch (error) {
+  } catch (error) {
     console.error('Error processing form data:', error);
     return res.status(500).json({ success: false, message: 'Internal server error', error: error });
   }
-}
+};
+
 export const richText = async (req, res) => {
   try {
     const { content } = req.body;
