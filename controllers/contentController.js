@@ -116,7 +116,7 @@ export const editFooter = async (req, res) => {
 export const editHeader = async (req, res) => {
   try {
     const { menu1: newMenu1, menu2: newMenu2, menu3: newMenu3, menu4: newMenu4 } = req.body;
-    console.log(req.body);
+    // console.log(req.body);
     let header = await headerModel.findOne({});
 
     // Check if header is null
@@ -777,7 +777,7 @@ export const getFreeBook = async (req, res) => {
       temp.splice(3);
       temp.push("Please Purchase the book to view all the pages");
       requiredFormat[item.chapterName] = temp;
-      console.log(requiredFormat);
+      // console.log(requiredFormat);
     }
     return res.json({
       success: true,

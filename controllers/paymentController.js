@@ -121,7 +121,7 @@ export const updatePaymentStatus = async(req, res) => {
 //     }
 // }
 export const totalRevenue = async (req, res) => {
-  console.log("abc")
+  // console.log("abc")
     try {
       const paymentIntents = await stripe.paymentIntents.list({
         limit: 100,
@@ -166,7 +166,7 @@ export const totalRevenue = async (req, res) => {
   
       const filteredCustomers = customers.filter(customer => {
         const customerCreatedDate = formatDateTime(customer.createdAt);
-        console.log('Customer Created Date:', customerCreatedDate);
+        // console.log('Customer Created Date:', customerCreatedDate);
         return (
             paymentIntents.data.some(paymentIntent => paymentIntent.customer === customer.stripeDetails) &&
             new Date(formatDateTime(customerCreatedDate)).getTime() / 1000 >= new Date(startDate).getTime() / 1000 &&
