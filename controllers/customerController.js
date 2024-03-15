@@ -235,24 +235,27 @@ export const raiseCommunityRequest = async (req, res) => {
         return res.status(500).json({success: false, message: 'Internal Server Error', data: null });
     }
 };
-export const raiseRefundRequest = async (req, res) => {
-    const { customId } = req.params;
 
+export const raiseRefundRequest = async (req, res) => {
+  const { customId } = req.params;
   try {
     const existingUser = await customerModel.findOne({ customId });
-
     if (!existingUser) {
       return res.status(400).json({ success: false, message: 'Customer not found', data: null });
     }
+    if (existingUser.refundStatus === 'valid') {
+      return res.status(400).json({ success: false, message: 'Refund request already raised', data: existingUser });
+    }
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-
     if (existingUser.createdAt > thirtyDaysAgo) {
       existingUser.refundStatus = 'valid';
     } else {
       existingUser.refundStatus = 'not valid';
     }
     await existingUser.save();
+    const userEmail = existingUser.email;
+    await sendMail(userEmail, "Request for Refund", `thanks for requesting Refund. we will get back to you in short notice`);
     return res.status(200).json({
       success: true,
       message: 'Refund request raised successfully',
@@ -263,21 +266,37 @@ export const raiseRefundRequest = async (req, res) => {
     return res.status(500).json({ success: false, message: 'Internal Server Error', data: null });
   }
 }
+
+export const checkRefundStatus = async (req, res) => {
+    try {
+        const { customId } = req.params;
+        const existingUser = await customerModel.findOne({ customId: customId });
+        if (!existingUser) {
+            return res.status(400).json({ success: false, message: 'Customer not found', data: null});
+        }
+        if (existingUser.refundStatus === 'valid') {
+            return res.status(200).json({ success: true, message: 'Refund request already raised', data: existingUser });
+        } else {
+            return res.status(200).json({ success: true, message: 'Refund request not yet raised', data: existingUser });
+        }
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({ success: false, message: 'Internal Server Error', data: null });
+    }
+}
+
 export const checkMessageSent = async (req, res) => {
     const { customId } = req.params;
-
     try {
         const existingUser = await customerModel.findOne({ customId: customId });
         if (!existingUser)
             return res.status(400).json({ success: false, message: 'Customer not found', data: null});
-
         if (existingUser.lastHelpMessageSentAt) {
             const timeSinceLastMessage = Date.now() - existingUser.lastHelpMessageSentAt.getTime();
             if (timeSinceLastMessage < (24 * 60 * 60 * 1000)) {
                 return res.status(400).json({ success: false, message: 'You can only send one message in every 24 hours', data: null});
             }
         }
-
         return res.status(200).json({ success: true, message: 'No message sent within last 24 hours', data: null });
     }
     catch (error) {
@@ -305,7 +324,9 @@ export const messageRequest = async (req, res) => {
         existingUser.helpMessage = message; 
         existingUser.lastHelpMessageSentAt = new Date(); // Set the timestamp for the last help message sent
         await existingUser.save();
-        
+        const userEmail=existingUser.email;
+        await sendMail(userEmail, "Review", `thanks for sending your message to us. we will get back to you in short notice`);
+
         return res.status(200).json({
             success: true,
             message: `Message sent successfully`,
