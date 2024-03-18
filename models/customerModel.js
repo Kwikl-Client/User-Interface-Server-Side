@@ -59,7 +59,6 @@ const CustomerSchema = mongoose.Schema(
     refundStatus: {
       type: String,
       enum: ['not valid', 'valid', 'refunded', 'declined'],
-      default: 'not valid' // Set the default value to 'valid'
     },
     lastHelpMessageSentAt: {
       type: Date,
