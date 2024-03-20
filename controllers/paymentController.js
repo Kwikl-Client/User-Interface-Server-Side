@@ -41,8 +41,8 @@ export const createPaymentIntent = async (req, res) => {
         },
       ],
       mode: "payment",
-      success_url: `https://44.205.226.251/success?&email=${email}&name=${name}&sessionId={CHECKOUT_SESSION_ID}`,
-      cancel_url: `https://44.205.226.251/`,
+      success_url: `http://44.205.226.251/success?&email=${email}&name=${name}&sessionId={CHECKOUT_SESSION_ID}`,
+      cancel_url: `http://44.205.226.251/`,
       customer_email: email,
     });
 
@@ -84,7 +84,6 @@ export const updatePaymentStatus = async(req, res) => {
         return res.status(500).json({ success: false, message: 'Internal Server error', data: null});
     }
 }
-
 export const totalRevenue = async (req, res) => {
   // console.log("abc")
     try {
