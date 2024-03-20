@@ -41,8 +41,8 @@ export const createPaymentIntent = async (req, res) => {
         },
       ],
       mode: "payment",
-      success_url: `http://52.7.89.125/success?&email=${email}&name=${name}&sessionId={CHECKOUT_SESSION_ID}`,
-      cancel_url: `http://52.7.89.125/`,
+      success_url: `http://3.213.90.84/success?&email=${email}&name=${name}&sessionId={CHECKOUT_SESSION_ID}`,
+      cancel_url: `http://3.213.90.84/`,
       customer_email: email,
     });
 
@@ -84,6 +84,7 @@ export const updatePaymentStatus = async(req, res) => {
         return res.status(500).json({ success: false, message: 'Internal Server error', data: null});
     }
 }
+<<<<<<< HEAD
 // export const createOfferPaymentIntent = async (req, res) => {
 //     const { email, name } = req.query;
 //     try {
@@ -120,6 +121,9 @@ export const updatePaymentStatus = async(req, res) => {
 //         return res.status(500).json({ success: false, message: 'Internal Server error', data: null });
 //     }
 // }
+=======
+
+>>>>>>> 2f15aaa39a425da4fb957c2253b1bcf16c09220a
 export const totalRevenue = async (req, res) => {
   // console.log("abc")
     try {
