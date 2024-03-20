@@ -84,42 +84,7 @@ export const updatePaymentStatus = async(req, res) => {
         return res.status(500).json({ success: false, message: 'Internal Server error', data: null});
     }
 }
-// export const createOfferPaymentIntent = async (req, res) => {
-//     const { email, name } = req.query;
-//     try {
-//         const today = moment().startOf('day');
-//         const tomorrow = moment(today).add(1, 'days');
-//         const customerCount = await customerModel.countDocuments({
-//             createdAt: { $gte: today.toDate(), $lt: tomorrow.toDate() }
-//         });
-//         if (customerCount >= 100) {
-//             return res.status(403).json({ success: false, message: 'Customer limit reached for today', data: null });
-//         }
-//         const session = await stripe.checkout.sessions.create({
-//             line_items: [
-//                 {
-//                     price_data: {
-//                         currency: "inr",
-//                         product_data: {
-//                             name: "Book",
-//                         },
-//                         unit_amount: 500 * 100 
-//                     },
-//                     quantity: 1,
-//                 },
-//             ],
-//             mode: "payment",
-//             success_url: `http://18.209.7.74:7000/success?&email=${email}&name=${name}&sessionId={CHECKOUT_SESSION_ID}`,
-//             cancel_url: "http://18.209.7.74:7000/cancel",
-//             customer_email: email,
-//         });
-//         await customerModel.create({ email: email, stripeDetails: session.id });
-//         return res.status(200).json({ success: true, message: 'Intent created successfully', data: session });
-//     } catch (error) {
-//         console.log(error);
-//         return res.status(500).json({ success: false, message: 'Internal Server error', data: null });
-//     }
-// }
+
 export const totalRevenue = async (req, res) => {
   // console.log("abc")
     try {
