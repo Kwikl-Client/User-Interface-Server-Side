@@ -41,8 +41,8 @@ export const createPaymentIntent = async (req, res) => {
         },
       ],
       mode: "payment",
-       success_url: `http://44.205.226.251/success?&email=${email}&name=${name}&sessionId={CHECKOUT_SESSION_ID}`,
-      cancel_url: `http://44.205.226.251/`,
+       success_url: `http://18.213.7.150/success?&email=${email}&name=${name}&sessionId={CHECKOUT_SESSION_ID}`,
+      cancel_url: `http://18.213.7.150/`,
       customer_email: email,
     });
 
