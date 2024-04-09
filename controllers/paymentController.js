@@ -17,7 +17,7 @@ export const createPaymentIntent = async (req, res) => {
     let currency;
     let unitAmount;
     if (customerCount < 99) {
-      unitAmount = 999.9; 
+      unitAmount = 999.9 * 100; 
       const stripeCountry = 'US'; // Replace with the actual Stripe country code from your user's account
       const countryInfo = await stripe.countrySpecs.retrieve(stripeCountry);
       currency = countryInfo.default_currency.toUpperCase()
@@ -32,7 +32,7 @@ export const createPaymentIntent = async (req, res) => {
           price_data: {
             currency: 'USD',
             product_data: {
-              name: "Salssky - THe Chosen One",
+              name: "Salssky - The Chosen One",
               description: "Note: Your card statement will reflect a charge from Kwik L Inc.",
             },
             unit_amount: unitAmount
@@ -41,7 +41,7 @@ export const createPaymentIntent = async (req, res) => {
         },
       ],
       mode: "payment",
-       success_url: `https://salssky.com/success?&email=${email}&name=${name}&sessionId={CHECKOUT_SESSION_ID}`,
+      success_url: `https://salssky.com/success?&email=${email}&name=${name}&sessionId={CHECKOUT_SESSION_ID}`,
       cancel_url: `https://salssky.com/`,
       customer_email: email,
     });
@@ -84,6 +84,7 @@ export const updatePaymentStatus = async(req, res) => {
         return res.status(500).json({ success: false, message: 'Internal Server error', data: null});
     }
 }
+
 export const totalRevenue = async (req, res) => {
   // console.log("abc")
     try {
