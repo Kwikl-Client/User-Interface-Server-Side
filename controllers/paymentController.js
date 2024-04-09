@@ -32,7 +32,7 @@ export const createPaymentIntent = async (req, res) => {
           price_data: {
             currency: 'USD',
             product_data: {
-              name: "Book Name",
+              name: "Salssky - THe Chosen One",
               description: "Description of the book",
             },
             unit_amount: unitAmount
@@ -41,8 +41,8 @@ export const createPaymentIntent = async (req, res) => {
         },
       ],
       mode: "payment",
-       success_url: `http://18.213.7.150/success?&email=${email}&name=${name}&sessionId={CHECKOUT_SESSION_ID}`,
-      cancel_url: `http://18.213.7.150/`,
+       success_url: `https://salssky.com/success?&email=${email}&name=${name}&sessionId={CHECKOUT_SESSION_ID}`,
+      cancel_url: `https://salssky.com/`,
       customer_email: email,
     });
 
