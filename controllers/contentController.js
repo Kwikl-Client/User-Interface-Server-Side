@@ -34,7 +34,7 @@ export const editHero = async (req, res) => {
 export const editCharacters = async (req, res) => {
   try {
     const { _id } = req.params;
-    const { characterName, shortDescription, briefDescription,briefDescription2 } = req.body
+    const { characterName, shortDescription, briefDescription,briefDescription2,briefDescription3,briefDescription4 } = req.body
     const character = await characterModel.findById(_id);
     // character.heading = heading || character.heading;
     // character.subHeading = subHeading || character.subHeading;
@@ -42,6 +42,8 @@ export const editCharacters = async (req, res) => {
     character.shortDescription = shortDescription || character.shortDescription;
     character.briefDescription = briefDescription || character.briefDescription;
     character.briefDescription2 = briefDescription2 || character.briefDescription2;
+    character.briefDescription3 = briefDescription3 || character.briefDescription3;
+    character.briefDescription4 = briefDescription4 || character.briefDescription4;
     character.image = req.picUrls?.image || character.image;
     await character.save();
     return res.json({
@@ -774,8 +776,8 @@ export const getFreeBook = async (req, res) => {
     let requiredFormat = {};
     for (const item of book) {
       const temp = [...item.content];
-      temp.splice(3);
-      temp.push("Please Purchase the book to view all the pages");
+      temp.splice(9);
+      temp.push("Discover the Self-Transcendence of Sals! Purchase Access to Read More");
       requiredFormat[item.chapterName] = temp;
       // console.log(requiredFormat);
     }

@@ -18,7 +18,7 @@ export const registerCustomer = async (req, res) => {
         const hashedPwd = await encrypt(password);
         const newEntry = { name, email, password: hashedPwd, stripeDetails, amtPaid: session.amount_total };
         const newCustomer = await customerModel.create(newEntry);
-        await sendMail(email, "Wonted Password", `Thank You for purchasing our most rated book. Your password  for one time login is ${password}. We value your journey with us. Have a Good day !!`)
+        await sendMail(email, "Welcome aboard; your journey awaits.", `As you embark on your journey toward self-transcendence, remember that your temporary login password, VetqbhCX7A, is your gateway to the wonders within our dashboard, ${password}, is your gateway to the wonders within our dashboard.`)
 
         return res.status(201).json({
             success: true,
@@ -222,7 +222,7 @@ export const raiseCommunityRequest = async (req, res) => {
         existingUser.joinCommunityStatus = "raised";
         await existingUser.save();
         const userEmail = existingUser.email;
-        await sendMail(userEmail, "Request for Community", `thanks for requesting to join community. we will get back to you in short notice`);
+        await sendMail(userEmail, "Join Community Request", `Woooo! Your ID has been added to the Join Community waitlist! Amidst demand, a 40-day journey begins, enriched with an exclusive offer. Let's intertwine destinies and embark on your self-transcendence quest with Salssky Odyssey's essence.`);
 
         return res.status(200).json({
             success: true,
@@ -261,11 +261,11 @@ export const raiseRefundRequest = async (req, res) => {
 
         const userEmail = existingUser.email;
         // Assuming `sendMail` function is defined somewhere to send emails
-        await sendMail(userEmail, "Request for Refund", `Thanks for requesting a refund. We will get back to you shortly.`);
+        await sendMail(userEmail, "Refund Request", `Your refund request has been submitted. In the meantime, if you require any assistance, please reach out to our Account Team at support@salssky.com. Make sure the subject line of your email accurately reflects your inquiry.`);
 
         return res.status(200).json({
             success: true,
-            message: 'Refund request raised successfully',
+            message: 'Refund request successfully initiated.',
             data: existingUser,
         });
     } catch (error) {
@@ -331,7 +331,7 @@ export const messageRequest = async (req, res) => {
         existingUser.lastHelpMessageSentAt = new Date(); // Set the timestamp for the last help message sent
         await existingUser.save();
         const userEmail = existingUser.email;
-        await sendMail(userEmail, "Review", `thanks for sending your message to us. we will get back to you in short notice`);
+        await sendMail(userEmail, "Message", `We appreciate your time in writing to us. Expect our response shortly.`);
 
         return res.status(200).json({
             success: true,
@@ -391,7 +391,7 @@ export const forgotPassword = async (req, res) => {
         const hashedPwd = await encrypt(password);
         existingUser.password = hashedPwd;
         await existingUser.save();
-        await sendMail(email, "Wonted Password", `Your new password is ${password}`)
+        await sendMail(email, "New Password", `Here's the new access key you requested: ${password}`)
         return res.status(200).json({
             success: true,
             message: `New password has been sent to ${email}`,

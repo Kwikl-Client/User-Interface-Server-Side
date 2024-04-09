@@ -63,6 +63,14 @@ const CharacterSchema = mongoose.Schema(
             type: String,
             required: true,
         },
+        briefDescription3: {
+            type: String,
+            required: true,
+        },
+        briefDescription4: {
+            type: String,
+            required: true,
+        },
         image: {
             type: String,
             required: true,

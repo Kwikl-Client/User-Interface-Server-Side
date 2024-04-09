@@ -17,13 +17,13 @@ export const createPaymentIntent = async (req, res) => {
     let currency;
     let unitAmount;
     if (customerCount < 99) {
-      unitAmount = 0.5 * 100; 
+      unitAmount = 999.9 * 100; 
       const stripeCountry = 'US'; // Replace with the actual Stripe country code from your user's account
       const countryInfo = await stripe.countrySpecs.retrieve(stripeCountry);
       currency = countryInfo.default_currency.toUpperCase()
       } 
       else {
-      unitAmount = 1 * 100; 
+      unitAmount = 9999; 
     }
 
     const session = await stripe.checkout.sessions.create({
@@ -32,8 +32,8 @@ export const createPaymentIntent = async (req, res) => {
           price_data: {
             currency: 'USD',
             product_data: {
-              name: "Book Name",
-              description: "Description of the book",
+              name: "Salssky - The Chosen One",
+              description: "Note: Your card statement will reflect a charge from Kwik L Inc.",
             },
             unit_amount: unitAmount
           },
@@ -41,8 +41,8 @@ export const createPaymentIntent = async (req, res) => {
         },
       ],
       mode: "payment",
-      success_url: `http://3.213.90.84/success?&email=${email}&name=${name}&sessionId={CHECKOUT_SESSION_ID}`,
-      cancel_url: `http://3.213.90.84/`,
+      success_url: `https://salssky.com/success?&email=${email}&name=${name}&sessionId={CHECKOUT_SESSION_ID}`,
+      cancel_url: `https://salssky.com/`,
       customer_email: email,
     });
 
