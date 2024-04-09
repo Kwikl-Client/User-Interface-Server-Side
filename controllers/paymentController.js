@@ -33,7 +33,7 @@ export const createPaymentIntent = async (req, res) => {
             currency: 'USD',
             product_data: {
               name: "Salssky - THe Chosen One",
-              description: "Description of the book",
+              description: "Note: Your card statement will reflect a charge from Kwik L Inc.",
             },
             unit_amount: unitAmount
           },
