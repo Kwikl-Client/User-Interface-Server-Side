@@ -774,7 +774,7 @@ export const getFreeBook = async (req, res) => {
     let requiredFormat = {};
     for (const item of book) {
       const temp = [...item.content];
-      temp.splice(3);
+      temp.splice(9);
       temp.push("Please Purchase the book to view all the pages");
       requiredFormat[item.chapterName] = temp;
       // console.log(requiredFormat);
