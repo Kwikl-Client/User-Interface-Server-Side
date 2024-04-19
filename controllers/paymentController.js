@@ -17,7 +17,7 @@ export const createPaymentIntent = async (req, res) => {
     let currency;
     let unitAmount;
     if (customerCount < 99) {
-      unitAmount = 0.9 * 100; 
+      unitAmount = 999.9 * 100; 
       const stripeCountry = 'US'; // Replace with the actual Stripe country code from your user's account
       const countryInfo = await stripe.countrySpecs.retrieve(stripeCountry);
       currency = countryInfo.default_currency.toUpperCase()
