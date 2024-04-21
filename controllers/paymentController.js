@@ -17,13 +17,13 @@ export const createPaymentIntent = async (req, res) => {
     let currency;
     let unitAmount;
     if (customerCount < 99) {
-      unitAmount = 999.9 * 100; 
+      unitAmount = 99.9 * 100; 
       const stripeCountry = 'US'; // Replace with the actual Stripe country code from your user's account
       const countryInfo = await stripe.countrySpecs.retrieve(stripeCountry);
       currency = countryInfo.default_currency.toUpperCase()
       } 
       else {
-      unitAmount = 9999; 
+      unitAmount = 999; 
     }
 
     const session = await stripe.checkout.sessions.create({
