@@ -7,16 +7,20 @@ configDotenv();
 export const stripe = Stripe(process.env.STRIPE_SECRET);
 
 export const createPaymentIntent = async (req, res) => {
-  const { email, name } = req.query;
-  try {
-    const today = moment().startOf('day'); 
-    const tomorrow = moment(today).add(1, 'days'); 
-    const customerCount = await customerModel.countDocuments({
-      createdAt: { $gte: today.toDate(), $lt: tomorrow.toDate() }
-    });
-    let currency;
-    let unitAmount;
-    if (customerCount < 99) {
+      const { email, name } = req.query;
+      const currentTime = moment().tz('America/New_York');
+      const today = moment().startOf('day');
+      const tomorrow = moment(today).add(1, 'day');
+      const minutesElapsed = currentTime.diff(today, 'minutes');
+      const adjustedMinutesElapsed = Math.floor(minutesElapsed / 20); // Adjust for every 20 minutes
+      const customerCount = await customerModel.countDocuments({
+          createdAt: { $gte: today.toDate(), $lt: tomorrow.toDate() }
+      });
+      let userCount = Math.max(99 - adjustedMinutesElapsed, 0);
+      userCount = Math.max(userCount - customerCount, 0);
+      let currency;
+      let unitAmount;
+      if (userCount < 99) {
       unitAmount = 99.9 * 100; 
       const stripeCountry = 'US'; // Replace with the actual Stripe country code from your user's account
       const countryInfo = await stripe.countrySpecs.retrieve(stripeCountry);
