@@ -133,20 +133,14 @@ export const getCustomersBetweenDates = async (req, res) => {
     }
 };
 export const customerCount = async (req, res) => {
+    let userCount = 99;
     try {
-        const todayStart = moment().tz('America/New_York').startOf('day').toDate();
-        const todayEnd = moment().tz('America/New_York').endOf('day').toDate();
-        const userCount = await customerModel.countDocuments({ createdAt: { $gte: todayStart, $lte: todayEnd } });
-
-        let result;
-        if (userCount === 0) {
-            result = 99;
-        } else {
-            // Subtract user count from 99
-            result = 99 - userCount;
-        }
-
-        res.json({ date: todayStart, result });
+        const currentTime = moment().tz('America/New_York');
+        const minutesElapsed = currentTime.diff(currentTime.clone().startOf('day'), 'minutes');
+        const adjustedMinutesElapsed = Math.floor(minutesElapsed / 20); // Adjust for every 20 minutes
+        userCount = Math.max(99 - adjustedMinutesElapsed, 0);
+        // console.log(`Current user count: ${userCount}`);
+        res.json({ date: currentTime.toDate(), userCount });
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Internal Server Error' });
