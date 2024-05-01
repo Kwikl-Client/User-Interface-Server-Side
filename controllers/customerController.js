@@ -133,13 +133,21 @@ export const getCustomersBetweenDates = async (req, res) => {
     }
 };
 export const customerCount = async (req, res) => {
-    let userCount = 99;
     try {
         const currentTime = moment().tz('America/New_York');
-        const minutesElapsed = currentTime.diff(currentTime.clone().startOf('day'), 'minutes');
+        const today = moment().startOf('day');
+        const tomorrow = moment(today).add(1, 'day');
+
+        const minutesElapsed = currentTime.diff(today, 'minutes');
         const adjustedMinutesElapsed = Math.floor(minutesElapsed / 20); // Adjust for every 20 minutes
-        userCount = Math.max(99 - adjustedMinutesElapsed, 0);
-        // console.log(`Current user count: ${userCount}`);
+
+        const customerCount = await customerModel.countDocuments({
+            createdAt: { $gte: today.toDate(), $lt: tomorrow.toDate() }
+        });
+        console.log(customerCount)
+        let userCount = Math.max(99 - adjustedMinutesElapsed, 0);
+        userCount = Math.max(userCount - customerCount, 0);
+
         res.json({ date: currentTime.toDate(), userCount });
     } catch (error) {
         console.error(error);
