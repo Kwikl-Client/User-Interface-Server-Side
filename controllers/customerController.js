@@ -139,7 +139,7 @@ export const customerCount = async (req, res) => {
         const tomorrow = moment(today).add(1, 'day');
 
         const minutesElapsed = currentTime.diff(today, 'minutes');
-        const adjustedMinutesElapsed = Math.floor(minutesElapsed / 20); // Adjust for every 20 minutes
+        const adjustedMinutesElapsed = Math.floor(minutesElapsed / 30); // Adjust for every 20 minutes
 
         const customerCount = await customerModel.countDocuments({
             createdAt: { $gte: today.toDate(), $lt: tomorrow.toDate() }
