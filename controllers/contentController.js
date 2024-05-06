@@ -774,12 +774,14 @@ export const getFreeBook = async (req, res) => {
   try {
     const book = await bookModel.find();
     let requiredFormat = {};
-    for (const item of book) {
+    for (let i = 0; i < book.length; i++) {
+      const item = book[i];
       const temp = [...item.content];
-      temp.splice(8);
+      if (i === 1) {
+        temp.splice(2);
+      }
       temp.push("Discover the Self-Transcendence of Sals! Purchase Access to Read More");
       requiredFormat[item.chapterName] = temp;
-      // console.log(requiredFormat);
     }
     return res.json({
       success: true,
