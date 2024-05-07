@@ -2,10 +2,30 @@ import jwt from 'jsonwebtoken';
 import moment from 'moment-timezone';
 import { stripe } from "./paymentController.js";
 import customerModel from "../models/customerModel.js";
+import allUsersModel from "../models/allUsersModel.js"
 import { encrypt, verifyPwd } from "../utils/hasher.js";
 import { generateAccessToken } from "../utils/generateToken.js";
 import { generate } from "generate-password";
 import sendMail from "../utils/sendMail.js";
+
+export const allUsersData = async (req, res) => {
+    try {
+        const { name, email } = req.body;
+        const existingMember = await allUsersModel.findOne({ email });
+        if (existingMember)
+            return res.status(400).json({ success: false, message: `Customer Already Exists, Please Login`, data: null });
+        const newCustomer = await allUsersModel.create({ name, email });
+        return res.status(201).json({
+            success: true,
+            message: 'New Customer Account Created Successfully.',
+            data: { name: newCustomer.name, email: newCustomer.email },
+        });
+    }
+    catch (error) {
+        console.log(error);
+        return res.status(500).json({ success: false, message: 'Internal Server error', data: null });
+    }
+};
 
 export const registerCustomer = async (req, res) => {
     try {
