@@ -13,7 +13,7 @@ export const createPaymentIntent = async (req, res) => {
     const today = moment().startOf('day');
     const tomorrow = moment(today).add(1, 'day');
     const minutesElapsed = currentTime.diff(today, 'minutes');
-    const adjustedMinutesElapsed = Math.floor(minutesElapsed / 30); // Adjust for every 20 minutes
+    const adjustedMinutesElapsed = Math.floor(minutesElapsed / 15); // Adjust for every 20 minutes
     const customerCount = await customerModel.countDocuments({
         createdAt: { $gte: today.toDate(), $lt: tomorrow.toDate() }
     });
@@ -37,6 +37,8 @@ export const createPaymentIntent = async (req, res) => {
             currency: 'USD',
             product_data: {
               name: "Salssky - The Chosen One",
+              description: "Ship and Let’s Sail Sky! - Board now and embark on an illuminating journey of self-transcendence.",
+
             },
             unit_amount: unitAmount
           },
