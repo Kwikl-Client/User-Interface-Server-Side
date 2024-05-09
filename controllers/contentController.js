@@ -778,9 +778,9 @@ export const getFreeBook = async (req, res) => {
       const item = book[i];
       const temp = [...item.content];
       if (i === 1) {
-        temp.splice(4);
+        temp.splice(9);
       }
-      temp.push("Discover the Self-Transcendence of Sals! Purchase Access to Read More");
+      temp.push("Ready? Live — Your Ascendence!");
       requiredFormat[item.chapterName] = temp;
     }
     return res.json({
