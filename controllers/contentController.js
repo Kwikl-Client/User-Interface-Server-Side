@@ -782,6 +782,7 @@ export const getFreeBook = async (req, res) => {
       }
       temp.push("'The victory over the creature did not resonate with the profound connection he felt in the presence of that mystical wind.' — Was Sals's triumph merely the end of a formidable foe, or the beginning of a deeper journey towards self-transcendence? What significance lies in the gentle caress of a mysterious breeze that continues to beckon him, even in his dreams? Who is the Blindfolded Man in the dream, and what does it mean? Why does Sophus say, 'Open your eyes, and see what nobody else has seen yet'? Nonetheless, as Sophus asserts, 'You are the chosen one, and you have already embarked on the journey, my dear friend. As you continue your quest, your eyes will be opened to the universal secrets - the language of revelation and discovery'!             Remember to continue your journey by accessing the first Realm and igniting your self-transcendence!");
       requiredFormat[item.chapterName] = temp;
+    }
     return res.json({
       success: true,
       message: 'Book fetched successfully',
@@ -792,6 +793,7 @@ export const getFreeBook = async (req, res) => {
     return res.status(500).json({ success: false, message: 'Internal server error', error: error });
   }
 };
+
 
 export const richText = async (req, res) => {
   try {
