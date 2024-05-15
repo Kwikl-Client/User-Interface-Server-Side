@@ -1,10 +1,12 @@
 import express from 'express';
-import { registerCustomer, loginCustomer, getAllCustomers, raiseCommunityRequest, editCustomerDetails, verifyTkn, checkEmail, deleteCustomer, getCustomersBetweenDates, forgotPassword, submitReview,customerCount, messageRequest, raiseRefundRequest, checkMessageSent, checkRefundStatus, allUsersData } from '../controllers/customerController.js';
+import { registerCustomer, loginCustomer, getAllCustomers, raiseCommunityRequest, editCustomerDetails,
+        verifyTkn, checkEmail, deleteCustomer, getCustomersBetweenDates, forgotPassword, submitReview,customerCount,
+        messageRequest, raiseRefundRequest, checkMessageSent, checkRefundStatus} from '../controllers/customerController.js';
 import { protect } from '../middlewares/authmiddlewares.js';
 
 const CustomerRoutes = express.Router();
 
-CustomerRoutes.post('/allUsers', allUsersData);
+// CustomerRoutes.post('/allUsers', allUsersData);
 CustomerRoutes.post('/registerCustomer', registerCustomer);
 CustomerRoutes.post('/loginCustomer', loginCustomer);
 CustomerRoutes.post('/getAllCustomer', getAllCustomers);
