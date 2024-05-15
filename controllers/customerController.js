@@ -8,37 +8,45 @@ import { generateAccessToken } from "../utils/generateToken.js";
 import { generate } from "generate-password";
 import sendMail from "../utils/sendMail.js";
 
-export const allUsersData = async (req, res) => {
-    try {
-        const { name, email } = req.body;
-        const existingMember = await allUsersModel.findOne({ email });
-        if (existingMember)
-            return res.status(400).json({ success: false, message: `Customer Already Exists, Please Login`, data: null });
-        const newCustomer = await allUsersModel.create({ name, email });
-        return res.status(201).json({
-            success: true,
-            message: 'New Customer Account Created Successfully.',
-            data: { name: newCustomer.name, email: newCustomer.email },
-        });
-    }
-    catch (error) {
-        console.log(error);
-        return res.status(500).json({ success: false, message: 'Internal Server error', data: null });
-    }
-};
+// export const allUsersData = async (req, res) => {
+//     try {
+//         const { name, email } = req.body;
+//         const existingMember = await allUsersModel.findOne({ email });
+//         if (existingMember)
+//             return res.status(400).json({ success: false, message: `Customer Already Exists, Please Login`, data: null });
+//         const newCustomer = await allUsersModel.create({ name, email });
+//         return res.status(201).json({
+//             success: true,
+//             message: 'New Customer Account Created Successfully.',
+//             data: { name: newCustomer.name, email: newCustomer.email },
+//         });
+//     }
+//     catch (error) {
+//         console.log(error);
+//         return res.status(500).json({ success: false, message: 'Internal Server error', data: null });
+//     }
+// };
 
 export const registerCustomer = async (req, res) => {
     try {
         let { name, email, stripeDetails } = req.body;
         const existingMember = await customerModel.findOne({ email: email });
+        
         if (existingMember)
             return res.status(400).json({ success: false, message: `Customer Already Exist, Please Login`, data: null });
+
+        let allUsers;
+        if (!stripeDetails) {
+            // If stripeDetails are not provided, create a user in allUsersModel
+            const user = await allUsersModel.create({ name, email });
+            allUsers = user;
+        }
         const session = await stripe.checkout.sessions.retrieve(stripeDetails);
         const password = generate({ length: 10, numbers: true });
         const hashedPwd = await encrypt(password);
         const newEntry = { name, email, password: hashedPwd, stripeDetails, amtPaid: session.amount_total };
         const newCustomer = await customerModel.create(newEntry);
-        await sendMail(email, "Welcome aboard; your journey awaits.", `As you embark on your journey toward self-transcendence, remember that your temporary login password ${password}, is your gateway to the wonders within our dashboard.`)
+        await sendMail(email, "Welcome aboard; your journey awaits.", `As you embark on your journey toward self-transcendence, remember that your temporary login password, VetqbhCX7A, is your gateway to the wonders within our dashboard, ${password}, is your gateway to the wonders within our dashboard.`)
 
         return res.status(201).json({
             success: true,
@@ -52,7 +60,6 @@ export const registerCustomer = async (req, res) => {
         return res.status(500).json({ success: false, message: 'Internal Server error', data: null });
     }
 };
-
 export const loginCustomer = async (req, res) => {
     try {
         const { email, password } = req.body;
