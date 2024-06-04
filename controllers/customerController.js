@@ -251,7 +251,7 @@ export const raiseCommunityRequest = async (req, res) => {
         existingUser.joinCommunityStatus = "raised";
         await existingUser.save();
         const userEmail = existingUser.email;
-        await sendMail(userEmail, "Join Community Request", `Woooo! Your ID has been added to the Join Community waitlist! Amidst demand, a 40-day journey begins, enriched with an exclusive offer. Let's intertwine destinies and embark on your self-transcendence quest with Salssky Odyssey's essence.`);
+        await sendMail(userEmail, "Join Community Request", `Woooo! Your ID has been added to the ‘Salssky - The Chosen One’ Community waitlist!`);
 
         return res.status(200).json({
             success: true,
