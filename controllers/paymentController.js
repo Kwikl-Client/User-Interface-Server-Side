@@ -13,7 +13,7 @@ export const createPaymentIntent = async (req, res) => {
     const today = moment().startOf('day');
     const tomorrow = moment(today).add(1, 'day');
     const minutesElapsed = currentTime.diff(today, 'minutes');
-    const adjustedMinutesElapsed = Math.floor(minutesElapsed / 9); // Adjust for every 20 minutes
+    const adjustedMinutesElapsed = Math.floor(minutesElapsed / 13); // Adjust for every 20 minutes
     const customerCount = await customerModel.countDocuments({
         createdAt: { $gte: today.toDate(), $lt: tomorrow.toDate() }
     });
