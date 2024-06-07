@@ -46,7 +46,7 @@ export const registerCustomer = async (req, res) => {
         const hashedPwd = await encrypt(password);
         const newEntry = { name, email, password: hashedPwd, stripeDetails, amtPaid: session.amount_total };
         const newCustomer = await customerModel.create(newEntry);
-        await sendMail(email, "Welcome aboard; your journey awaits.", `As you embark on your journey toward self-transcendence, remember that your temporary login password, ${password}, is your gateway to the wonders within our dashboard.`)
+        await sendMail(email, "Welcome aboard; your journey awaits.", `Welcome to your journey of self-transcendence!Your registered email serves as your login username, and your temporary password is ${password}.You have the option to change your password in the dashboard. Please visit www.salssky.com/login to get started.`)
 
         return res.status(201).json({
             success: true,
