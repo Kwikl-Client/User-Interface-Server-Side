@@ -1,4 +1,5 @@
 import jwt from 'jsonwebtoken';
+import fs from 'fs';
 import moment from 'moment-timezone';
 import { stripe } from "./paymentController.js";
 import customerModel from "../models/customerModel.js";
@@ -6,29 +7,100 @@ import { encrypt, verifyPwd } from "../utils/hasher.js";
 import { generateAccessToken } from "../utils/generateToken.js";
 import { generate } from "generate-password";
 import sendMail from "../utils/sendMail.js";
+import { authenticateGoogle, uploadToGoogleDrive } from "../utils/uploadToDrive.js";
+
 
 export const registerCustomer = async (req, res) => {
     try {
-        let { name, email, stripeDetails } = req.body;
+        const { email, stripeDetails } = req.body;
+
+        // Check if customer already exists
         const existingMember = await customerModel.findOne({ email: email });
-        if (existingMember)
-            return res.status(400).json({ success: false, message: `Customer Already Exist, Please Login`, data: null });
-        const session = await stripe.checkout.sessions.retrieve(stripeDetails);
-        const password = generate({ length: 10, numbers: true });
-        const hashedPwd = await encrypt(password);
-        const newEntry = { name, email, password: hashedPwd, stripeDetails, amtPaid: session.amount_total };
-        const newCustomer = await customerModel.create(newEntry);
-        await sendMail(email, "Welcome aboard; your journey awaits.", `As you embark on your journey toward self-transcendence, remember that your temporary login password, VetqbhCX7A, is your gateway to the wonders within our dashboard, ${password}, is your gateway to the wonders within our dashboard.`)
+        if (existingMember) {
+            return res.status(400).json({
+                success: false,
+                message: `Customer already exists, please log in.`,
+                data: null
+            });
+        }
+
+        let allUsers;
+        if (!stripeDetails) {
+            // If stripeDetails are not provided, create a user in allUsersModel
+            const user = await allUsersModel.create({ email });
+            allUsers = user;
+        } else {
+            // Retrieve and validate Stripe session
+            const session = await stripe.checkout.sessions.retrieve(stripeDetails);
+
+            if (!session || session.status !== 'complete') {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Invalid or incomplete Stripe session.',
+                    data: null
+                });
+            }
+
+            // Create new customer entry with Stripe details
+            const password = generate({ length: 10, numbers: true });
+            const hashedPwd = await encrypt(password);
+
+            const newEntry = {
+                email,
+                password: hashedPwd,
+                stripeDetails: [{
+                    sessionId: stripeDetails,
+                    timestamp: new Date(),
+                    packageType: session.metadata.packageType // Capture package type from metadata
+                }],
+                amtPaid: session.amount_total
+            };
+
+            const newCustomer = await customerModel.create(newEntry);
+
+            // Send welcome email
+            await sendMail(email, 
+                "Welcome aboard; your journey awaits.", 
+                `Welcome to your journey of self-transcendence! Your temporary password is ${password}. This is your gateway to the wonders within our dashboard.`);
+
+            return res.status(201).json({
+                success: true,
+                message: 'New customer account created successfully. Password has been sent to your email.',
+                data: newCustomer,
+                accessToken: generateAccessToken(newCustomer._id, email),
+            });
+        }
 
         return res.status(201).json({
             success: true,
-            message: 'New Customer Account Created Successfully. Password has been sent to your mail',
-            data: newCustomer,
-            accessToken: generateAccessToken(newCustomer._id, email, newCustomer.name),
+            message: 'User created in allUsersModel. Please provide Stripe details to complete registration.',
+            data: allUsers
+        });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            success: false,
+            message: 'Internal server error',
+            data: null
+        });
+    }
+};
+
+export const allUsersData = async (req, res) => {
+    try {
+        const { name, email } = req.body;
+        const existingMember = await allUsersModel.findOne({ email });
+        if (existingMember)
+            return res.status(400).json({ success: false, message: `Customer Already Exists, Please Login`, data: null });
+        const newCustomer = await allUsersModel.create({ name, email });
+        return res.status(201).json({
+            success: true,
+            message: 'New Customer Account Created Successfully.',
+            data: { name: newCustomer.name, email: newCustomer.email },
         });
     }
     catch (error) {
-        console.log(error)
+        console.log(error);
         return res.status(500).json({ success: false, message: 'Internal Server error', data: null });
     }
 };
@@ -38,24 +110,28 @@ export const loginCustomer = async (req, res) => {
         const { email, password } = req.body;
         const customer = await customerModel.findOne({ email: email });
         if (!customer)
-            return res.status(400).json({ success: false, message: 'Email not found please signup', data: null });
-        const isPasswordCrt = await verifyPwd(password, customer.password);
+            return res.status(400).json({ success: false, message: 'Email not found, please signup', data: null });
 
+        const isPasswordCrt = await verifyPwd(password, customer.password);
         if (!isPasswordCrt)
-            return res.status(400).json({ success: false, message: 'Email found but recieved wrong password', data: null });
+            return res.status(400).json({ success: false, message: 'Email found but received wrong password', data: null });
+
+        // Determine if the user is an admin
+        const isAdmin = customer.isAdmin;
 
         return res.status(200).json({
             success: true,
             message: `LoggedIn Successfully`,
             data: customer,
-            accessToken: generateAccessToken(customer._id, email, customer.name),
+            accessToken: generateAccessToken(customer._id, email, customer.name, isAdmin),
+            isAdmin: isAdmin // Return the admin status
         });
-    }
-    catch (error) {
-        console.log(error)
+    } catch (error) {
+        console.log(error);
         return res.status(500).json({ success: false, message: 'Internal Server error', data: null });
     }
 };
+
 
 export const getAllCustomers = async (req, res) => {
     try {
@@ -134,19 +210,20 @@ export const getCustomersBetweenDates = async (req, res) => {
 };
 export const customerCount = async (req, res) => {
     try {
-        const todayStart = moment().tz('America/New_York').startOf('day').toDate();
-        const todayEnd = moment().tz('America/New_York').endOf('day').toDate();
-        const userCount = await customerModel.countDocuments({ createdAt: { $gte: todayStart, $lte: todayEnd } });
+        const currentTime = moment().tz('America/New_York');
+        const today = moment().startOf('day');
+        const tomorrow = moment(today).add(1, 'day');
 
-        let result;
-        if (userCount === 0) {
-            result = 99;
-        } else {
-            // Subtract user count from 99
-            result = 99 - userCount;
-        }
+        const minutesElapsed = currentTime.diff(today, 'minutes');
+        const adjustedMinutesElapsed = Math.floor(minutesElapsed / 13); // Adjust for every 20 minutes
 
-        res.json({ date: todayStart, result });
+        const customerCount = await customerModel.countDocuments({
+            createdAt: { $gte: today.toDate(), $lt: tomorrow.toDate() }
+        });
+        let userCount = Math.max(99 - adjustedMinutesElapsed, 0);
+        userCount = Math.max(userCount - customerCount, 0);
+
+        res.json({ date: currentTime.toDate(), userCount });
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Internal Server Error' });
@@ -178,7 +255,7 @@ export const editCustomerDetails = async (req, res) => {
         return res.status(500).json({ success: false, message: 'Internal Server error', data: null });
     }
 };
-
+  
 export const verifyTkn = async (req, res) => {
     try {
         const { token } = req.params;
@@ -214,16 +291,18 @@ export const checkEmail = async (req, res) => {
 };
 
 export const raiseCommunityRequest = async (req, res) => {
-    const { customId } = req.params;
+    const { email } = req.params; // Use email instead of customId
     try {
-        const existingUser = await customerModel.findOne({ customId: customId });
+        const existingUser = await customerModel.findOne({ email: email }); // Find by email
         if (!existingUser)
             return res.status(400).json({ success: false, message: 'Customer not found', data: null });
+        
         existingUser.joinCommunityStatus = "raised";
         await existingUser.save();
+        
         const userEmail = existingUser.email;
         await sendMail(userEmail, "Join Community Request", `Woooo! Your ID has been added to the Join Community waitlist! Amidst demand, a 40-day journey begins, enriched with an exclusive offer. Let's intertwine destinies and embark on your self-transcendence quest with Salssky Odyssey's essence.`);
-
+        
         return res.status(200).json({
             success: true,
             message: `Join community request raised successfully`,
@@ -231,7 +310,7 @@ export const raiseCommunityRequest = async (req, res) => {
         });
     }
     catch (error) {
-        console.log(error)
+        console.log(error);
         return res.status(500).json({ success: false, message: 'Internal Server Error', data: null });
     }
 };
@@ -249,13 +328,13 @@ export const raiseRefundRequest = async (req, res) => {
 
         const thirtyDaysAgo = new Date();
         thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-        
+
         if (existingUser.createdAt.getTime() > thirtyDaysAgo.getTime()) {
-          existingUser.refundStatus = 'valid';
+            existingUser.refundStatus = 'valid';
         } else {
-          existingUser.refundStatus = 'not valid';
+            existingUser.refundStatus = 'not valid';
         }
-        
+
         // Save the updated user document
         await existingUser.save();
 
@@ -402,3 +481,22 @@ export const forgotPassword = async (req, res) => {
         return res.status(500).json({ error: 'Server error' });
     }
 };
+export const acceptCookiePolicy = async (req, res) => {
+    try {
+        const customer = req.customer; // Accessing customer from the middleware
+
+        if (!customer) {
+            return res.status(404).json({ message: 'Customer not found' });
+        }
+
+        customer.policyAccepted = true;
+        const acceptedCustomer =await customer.save();
+
+        res.status(200).json({success: true, message: 'Cookie policy accepted', data:acceptedCustomer });
+    } catch (error) {
+        console.error('Error accepting cookie policy:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+  

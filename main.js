@@ -3,9 +3,12 @@ import cors from "cors";
 import dotenv from "dotenv";
 import colors from "colors";
 import connectDB from "./utils/connectDb.js";
-import ContentRoutes from "./routes/contentRoutes.js";
 import PaymentRoutes from "./routes/paymentRoutes.js";
-import CustomerRoutes from "./routes/customerRoutes.js"
+import CustomerRoutes from "./routes/customerRoutes.js";
+import booksRouter from "./routes/Books.js";
+import commentsRouter from "./routes/Comments.js";
+import ChaptersRouter from "./routes/chapters.js";
+import slidersRouter from "./routes/sliders.js"
 
 colors.enable();
 dotenv.config();
@@ -17,7 +20,10 @@ app.use(cors());
 
 app.use("/customer", CustomerRoutes);
 app.use("/payment", PaymentRoutes);
-app.use("/cms", ContentRoutes);
+app.use('/books', booksRouter);
+app.use('/comments', commentsRouter);
+app.use('/chapters', ChaptersRouter);
+app.use('/content', slidersRouter)
 
 const port = process.env.PORT || 7000;
 

@@ -1,13 +1,20 @@
 import mongoose from 'mongoose';
 
-const ReviewSchema = mongoose.Schema(
-  {
-    starRating: { type: Number }, // Change the type to Number
-    reviewText: { type: String },
-    profession: { type: String },
+const SubscriptionDetailSchema = mongoose.Schema({
+  sessionId: { type: String },
+  packageType: { 
+    type: String, 
+    enum: ['monthly', 'yearly', 'jumbo'], // Include all package types
   },
-  { _id: false } // This ensures that _id field is not created for each review
-);
+  subscriptionId: { type: String }, // Add this field to store the subscription ID
+}, { _id: false });
+
+
+const ReviewSchema = mongoose.Schema({
+  starRating: { type: Number },
+  reviewText: { type: String },
+  profession: { type: String },
+}, { _id: false });
 
 const CustomerSchema = mongoose.Schema(
   {
@@ -24,9 +31,22 @@ const CustomerSchema = mongoose.Schema(
       type: String,
       required: false,
     },
-    stripeDetails: {
-      type: String,
-    },
+    stripeDetails: [{ 
+      sessionId: { type: String }, 
+      timestamp: { type: Date, default: Date.now },
+      packageType: { 
+          type: String, 
+          enum: ['monthly', 'yearly'], // Only allow 'monthly' or 'yearly'
+      }
+  }],    
+  subscriptionDetails: [{ 
+    sessionId: { type: String }, 
+    timestamp: { type: Date, default: Date.now },
+    packageType: { 
+        type: String, 
+        enum: ['monthly', 'yearly', 'jumbo'], // Only allow 'monthly' or 'yearly'
+    }
+}],   
     phoneNumber: {
       type: String,
     },
@@ -45,7 +65,7 @@ const CustomerSchema = mongoose.Schema(
     },
     customerType: {
       type: String,
-      enum: ['reader', 'level2', 'level3', 'level4'],
+      enum: ['admin', 'reader', 'member', 'follower', 'star'],
       default: 'reader'
     },
     helpMessage:{
@@ -64,8 +84,19 @@ const CustomerSchema = mongoose.Schema(
       type: Date,
       default: null
     },
+    registeredCustomer:{
+      type: String,
+    },
     reviews: [ReviewSchema],
-
+    isAdmin: {
+      type: Boolean,
+      default: false
+    },
+    
+    policyAccepted: {
+      type: Boolean,
+      default: false
+    }
   },
   {
     timestamps: true,
@@ -73,8 +104,22 @@ const CustomerSchema = mongoose.Schema(
 );
 
 CustomerSchema.pre('save', function (next) {
+  if (this.subscriptionDetails && this.isModified('subscriptionDetails')) {
+    this.joinCommunityStatus = 'accepted';
+  }
+  next();
+});
+
+CustomerSchema.pre('save', function (next) {
   const last6Digits = this._id.toString().slice(-6);
   this.customId = last6Digits;
+  next();
+});
+
+CustomerSchema.pre('save', function (next) {
+  if (this.joinCommunityStatus === 'accepted') {
+    this.customerType = 'member';
+  }
   next();
 });
 
