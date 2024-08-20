@@ -8,7 +8,6 @@ import CustomerRoutes from "./routes/customerRoutes.js";
 import booksRouter from "./routes/Books.js";
 import commentsRouter from "./routes/Comments.js";
 import ChaptersRouter from "./routes/Chapters.js";
-import slidersRouter from "./routes/Sliders.js"
 
 colors.enable();
 dotenv.config();
@@ -23,7 +22,6 @@ app.use("/payment", PaymentRoutes);
 app.use('/books', booksRouter);
 app.use('/comments', commentsRouter);
 app.use('/chapters', ChaptersRouter);
-app.use('/content', slidersRouter)
 
 const port = process.env.PORT || 7000;
 
