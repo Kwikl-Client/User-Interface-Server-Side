@@ -1,15 +1,15 @@
 import express from 'express';
-import { createPaymentIntent, retrievePaymentDetails, updatePaymentStatus, totalRevenue, revenueInDateRange, refund } from '../controllers/paymentController.js';
+import { createPaymentIntentForBook, retrievePaymentDetails, createSubscription,updateSubscription,retrieveSubscriptionDetails,cancelSubscription } from '../controllers/paymentController.js';
+    // updatePaymentStatus, totalRevenue, revenueInDateRange, refund, 
 
 const PaymentRoutes = express.Router();
 
-PaymentRoutes.get('/createPaymentIntent', createPaymentIntent);
-// PaymentRoutes.get('/createOfferPaymentIntent',createOfferPaymentIntent );
 PaymentRoutes.get('/retrievePaymentDetails/:sessionId', retrievePaymentDetails);
-PaymentRoutes.get('/updatePaymentStatus/:email', updatePaymentStatus);
-PaymentRoutes.get('/totalRevenue', totalRevenue);
-PaymentRoutes.get('/salesperDates', revenueInDateRange)
-PaymentRoutes.post('/refund', refund)
+PaymentRoutes.get('/retrieveSubscriptionDetails/:subscriptionId', retrieveSubscriptionDetails);
+PaymentRoutes.post('/create-subscription', createSubscription);
+PaymentRoutes.get('/createPaymentIntent', createPaymentIntentForBook);
+PaymentRoutes.delete('/cancelPaymentIntent/:paymentIntentId', cancelSubscription);
+PaymentRoutes.patch('/update-subscription', updateSubscription);
 
 
 export default PaymentRoutes;

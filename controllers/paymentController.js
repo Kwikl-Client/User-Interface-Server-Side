@@ -5,205 +5,288 @@ import customerModel from "../models/customerModel.js";
 
 configDotenv();
 export const stripe = Stripe(process.env.STRIPE_SECRET);
-
-export const createPaymentIntent = async (req, res) => {
-  const { email, name } = req.query;
+export const packages = {
+  yearly: process.env.STRIPE_PRICE_ID_COMMUNITY_YEARLY,
+  jumbo: process.env.STRIPE_PRICE_ID_BOOK_CHAT_JUMBO,
+  monthly: process.env.STRIPE_PRICE_ID_COMMUNITY_MONTHLY,
+};
+export const createSubscription = async (req, res) => {
   try {
-    const today = moment().startOf('day'); 
-    const tomorrow = moment(today).add(1, 'days'); 
-    const customerCount = await customerModel.countDocuments({
-      createdAt: { $gte: today.toDate(), $lt: tomorrow.toDate() }
-    });
-    let currency;
-    let unitAmount;
-    if (customerCount < 99) {
-      unitAmount = 999.9 * 100; 
-      const stripeCountry = 'US'; // Replace with the actual Stripe country code from your user's account
-      const countryInfo = await stripe.countrySpecs.retrieve(stripeCountry);
-      currency = countryInfo.default_currency.toUpperCase()
-      } 
-      else {
-      unitAmount = 9999; 
+    const { packageType, email } = req.body;
+    const trialPeriodDays = 1;
+
+    if (!packages[packageType]) {
+      return res.status(400).send({ error: 'Invalid package type' });
     }
+    const customer = await customerModel.findOne({ email });
+    if (!customer) {
+      return res.status(404).send({ error: 'Customer not found' });
+    }
+    const trialEndTimestamp = Math.floor(Date.now() / 1000) + 24 * 60 * 60;
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ['card'],
+      success_url: 'https://salssky.com/community',
+      cancel_url: 'https://salssky.com/',
+      line_items: [
+        {
+          price: packages[packageType],
+          quantity: 1,
+        },
+      ],
+      mode: 'subscription',
+      customer_email: email,
+      client_reference_id: email,
+      subscription_data: {
+        trial_period_days: trialPeriodDays,
+      },
+    });
+
+    // Push new session ID and package type to the customer's subscription details
+    customer.subscriptionDetails.push({
+      sessionId: session.id,
+      packageType: packageType,
+    });
+    await customer.save();
+
+    // Return the session URL and session ID to the frontend
+    res.json({ url: session.url, sessionId: session.id });
+  } catch (e) {
+    console.error('Error creating checkout session:', e.message);
+    res.status(500).json({ error: e.message });
+  }
+};
+
+export const createPaymentIntentForBook = async (req, res) => {
+  try {
+    const { email, packageType } = req.query;
+
+    const priceIdMap = {
+      monthly: process.env.STRIPE_PRICE_ID_BOOK_MONTHLY,
+      yearly: process.env.STRIPE_PRICE_ID_BOOK_YEARLY,
+      jumbo: process.env.STRIPE_PRICE_ID_BOOK_CHAT_JUMBO,
+    };
+
+    if (!priceIdMap[packageType]) {
+      return res.status(400).json({ success: false, message: 'Invalid package type' });
+    }
+
+    const trialPeriodDays = 1;
 
     const session = await stripe.checkout.sessions.create({
       line_items: [
         {
-          price_data: {
-            currency: 'USD',
-            product_data: {
-              name: "Salssky - The Chosen One",
-              description: "Note: Your card statement will reflect a charge from Kwik L Inc.",
-            },
-            unit_amount: unitAmount
-          },
+          price: priceIdMap[packageType],
           quantity: 1,
         },
       ],
-      mode: "payment",
-      success_url: `https://salssky.com/success?&email=${email}&name=${name}&sessionId={CHECKOUT_SESSION_ID}`,
-      cancel_url: `https://salssky.com/`,
+      mode: "subscription",
+      subscription_data: {
+        trial_period_days: trialPeriodDays,
+      },
+      success_url: `https://salssky.com/success?email=${email}&sessionId={CHECKOUT_SESSION_ID}`,
+      cancel_url: `http://salssky.com`,
       customer_email: email,
     });
 
-    return res.status(200).json({ success: true, message: 'Intent created successfully', data: session });
+    return res.status(200).json({ success: true, message: 'Subscription payment intent created successfully', data: session });
   } catch (error) {
-    console.log(error);
+    console.error(error);
+    return res.status(500).json({ success: false, message: 'Internal Server Error', data: null });
+  }
+};
+
+export const retrievePaymentDetails = async (req, res) => {
+  try {
+    const { sessionId } = req.params;
+    const session = await stripe.checkout.sessions.retrieve(sessionId);
+    return res.status(200).json({ success: true, message: 'payment data retrived successfully', data: session });
+  }
+  catch (error) {
+    console.log(error)
     return res.status(500).json({ success: false, message: 'Internal Server error', data: null });
   }
 }
 
+export const cancelSubscription = async (req, res) => {
+  try {
+    const { email } = req.body;
 
-export const retrievePaymentDetails = async(req, res) => {
-    try {
-        const { sessionId } = req.params;
-        const session = await stripe.checkout.sessions.retrieve(sessionId);
-        return res.status(200).json({ success: true, message: 'Intent created successfully', data: session});
+    // Find the customer in your database
+    const customer = await customerModel.findOne({ email });
+
+    if (!customer || !customer.stripeDetails || !customer.stripeDetails.sessionId) {
+      return res.status(400).json({ success: false, message: 'Customer or subscription not found' });
     }
-    catch (error) {
-        console.log(error)
-        return res.status(500).json({ success: false, message: 'Internal Server error', data: null});
+
+    // Retrieve the session to get the subscription ID
+    const session = await stripe.checkout.sessions.retrieve(customer.stripeDetails.sessionId);
+    const subscriptionId = session.subscription;
+
+    if (!subscriptionId) {
+      return res.status(400).json({ success: false, message: 'Subscription not found for this customer' });
     }
+
+    // Cancel the subscription at the end of the current billing period
+    const updatedSubscription = await stripe.subscriptions.update(subscriptionId, {
+      cancel_at_period_end: true,
+    });
+
+    // Optionally update the customer record in your database (if needed)
+    customer.subscriptionDetails.cancel_at_period_end = true;
+    await customer.save();
+
+    return res.status(200).json({ success: true, message: 'Subscription set to cancel at the end of the current billing cycle', data: updatedSubscription });
+  } catch (error) {
+    console.error('Error canceling subscription:', error);
+    return res.status(500).json({ success: false, message: 'Internal Server Error', data: null });
+  }
+};
+export const expireCheckoutSession = async (req, res) => {
+  try {
+    const { sessionId } = req.params;
+
+    // Expire the checkout session using the Stripe API
+    const expiredSession = await stripe.checkout.sessions.expire(sessionId);
+
+    return res.status(200).json({
+      success: true,
+      message: 'Checkout Session expired successfully',
+      data: expiredSession
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      success: false,
+      message: 'Internal Server Error',
+      data: null
+    });
+  }
+};
+// export const getCurrency = async (ip) => {
+//   try {
+//     const response = await axios.get(`http://api.ipstack.com/${ip}?access_key=${process.env.IPSTACK_API_KEY}`);
+//     const countryCode = response.data.country_code;
+//     const currencyMap = {
+//       US: 'usd',
+//       IN: 'inr',
+//       EU: 'eur',
+//       // Add more mappings as needed
+//     };
+//     return currencyMap[countryCode] || 'usd';
+//   } catch (error) {
+//     console.error('Error fetching currency:', error);
+//     return 'usd';
+//   }
+// };
+
+// export const createSubscription = async (req, res) => {
+//   try {
+//     const { packageType, email } = req.body;
+
+//     if (!packages[packageType]) {
+//       return res.status(400).send({ error: 'Invalid package type' });
+//     }
+
+//     const session = await stripe.checkout.sessions.create({
+//       payment_method_types: ['card'],
+//       success_url: 'http://localhost:5173/community',
+//       cancel_url: 'http://localhost:5173/',
+//       line_items: [
+//         {
+//           price: packages[packageType],
+//           quantity: 1,
+//         },
+//       ],
+//       mode: 'subscription',
+//       customer_email: email,
+//       client_reference_id: email,
+//     });
+
+//     const customer = await customerModel.findOne({ email });
+
+//     if (!customer) {
+//       return res.status(404).send({ error: 'Customer not found' });
+//     }
+
+//     customer.stripeDetails.push({
+//       sessionId: session.id,
+//       packageType: packageType,
+//     });
+
+//     customer.subscriptionDetails.push({
+//       sessionId: session.id,
+//       packageType: packageType,
+//       subscriptionId: session.subscription, // Add subscription ID from Stripe session
+//     });
+
+//     await customer.save();
+
+//     res.json({ url: session.url, sessionId: session.id });
+//   } catch (e) {
+//     console.error('Error creating checkout session:', e.message);
+//     res.status(500).json({ error: e.message });
+//   }
+// };
+
+export const updateSubscription = async (req, res) => {
+  const { subscriptionId } = req.query; // Subscription ID from query parameters
+  const { packageType } = req.body; // Package type: 'monthly', 'yearly', 'jumbo'
+
+  try {
+    // Check if the packageType is valid
+    if (!packages[packageType]) {
+      return res.status(400).json({ erroyr: 'Invalid package type' });
+    }
+
+    // Fetch the subscription to get the current subscription item ID
+    const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+    const subscriptionItemId = subscription.items.data[0].id; // Assuming only one item
+
+    // Update the subscription with the new price ID from the packages config
+    const updatedSubscription = await stripe.subscriptions.update(subscriptionId, {
+      items: [{
+        id: subscriptionItemId, // Current subscription item ID
+        price: packages[packageType], // New price ID based on the package type
+      }],
+      proration_behavior: 'none', // Handle billing proration
+      billing_cycle_anchor: 'now', // Reset billing cycle to start now
+    });
+
+    // Update the subscription details in MongoDB
+    const updatedCustomer = await customerModel.findOneAndUpdate(
+      { 'subscriptionDetails.subscriptionId': subscriptionId },
+      {
+        'subscriptionDetails.packageType': packageType, // Save new package type
+        'subscriptionDetails.sessionId': updatedSubscription.id, // Update session ID if needed
+      },
+      { new: true }
+    );
+
+    if (!updatedCustomer) {
+      return res.status(404).json({ error: 'Customer not found' });
+    }
+
+    res.json({
+      message: 'Subscription updated successfully',
+      subscription: updatedSubscription,
+      updatedCustomer: updatedCustomer,
+    });
+
+  } catch (error) {
+    console.error('Error updating subscription:', error);
+    res.status(500).json({ error: error.message });
+  }
+};
+export const retrieveSubscriptionDetails = async (req, res) => {
+  try {
+    const { subscriptionId } = req.params; // Use req.params instead of req.query
+    console.log(subscriptionId);
+    if (!subscriptionId) return res.status(400).json({ error: 'Subscription ID is required' });
+
+    const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+    res.status(200).json(subscription);
+  } catch (error) {
+    console.error('Error retrieving subscription:', error);
+    res.status(500).json({ error: 'Failed to retrieve subscription details' });
+  }
 }
-
-export const updatePaymentStatus = async(req, res) => {
-    try {
-        const { email } = req.params;
-        const customer = await customerModel.findOne({email: email});
-        const session = await stripe.checkout.sessions.retrieve(customer.stripeDetails);
-        if(session.payment_status=== "paid"){
-            customer.isPaid = true;
-            await customer.save();
-        }
-        else
-            return res.status(400).json({ success: false, message: 'Payment is not successfull', data: customer});
-        return res.status(200).json({ success: true, message: 'Payment status updated successfully', data: customer});
-    }
-    catch (error) {
-        console.log(error);
-        return res.status(500).json({ success: false, message: 'Internal Server error', data: null});
-    }
-}
-
-export const totalRevenue = async (req, res) => {
-  // console.log("abc")
-    try {
-      const paymentIntents = await stripe.paymentIntents.list({
-        limit: 100,
-      });
-      const totalRevenue = paymentIntents.data.reduce((total, paymentIntent) => {
-        if (paymentIntent && paymentIntent.amount_received && paymentIntent.currency === 'USD') {
-          total += paymentIntent.amount_received / 100; 
-        }
-        return total;
-      }, 0);
-      return res.status(200).json({ success: true, message: 'Total revenue made', data:totalRevenue});
-    } catch (error) {
-      console.error('Error fetching total revenue:', error);
-      return res.status(500).json({ success: false, message: 'Internal Server Error' });
-    }
-  };
-  const formatDateTime = (dateTimeString) => {
-    const date = new Date(dateTimeString);
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-indexed
-    const day = String(date.getDate()).padStart(2, '0');
-  
-    return `${year}-${month}-${day}`;
-  };
-  
-  export const revenueInDateRange = async (req, res) => {
-    try {
-      const customers = await customerModel.find();
-      const { startDate, endDate } = req.query;
-  
-      if (!startDate || !endDate) {
-        return res.status(400).json({ success: false, message: 'Start date and end date are required.' });
-      }
-  
-      const paymentIntents = await stripe.paymentIntents.list({
-        limit: 10,
-        created: {
-          gte: new Date(startDate).getTime() / 1000,
-          lte: new Date(endDate).getTime() / 1000,
-        },
-      });
-  
-      const filteredCustomers = customers.filter(customer => {
-        const customerCreatedDate = formatDateTime(customer.createdAt);
-        // console.log('Customer Created Date:', customerCreatedDate);
-        return (
-            paymentIntents.data.some(paymentIntent => paymentIntent.customer === customer.stripeDetails) &&
-            new Date(formatDateTime(customerCreatedDate)).getTime() / 1000 >= new Date(startDate).getTime() / 1000 &&
-            new Date(formatDateTime(customerCreatedDate)).getTime() / 1000 <= new Date(endDate).getTime() / 1000
-          );
-          
-      });
-      const emailList = filteredCustomers.map(customer => customer.email);
-  
-      const totalRevenue = paymentIntents.data.reduce((total, paymentIntent) => {
-        if (paymentIntent && paymentIntent.amount_received && paymentIntent.currency === 'inr') {
-          total += paymentIntent.amount_received / 100; // Convert amount from cents to dollars
-        }
-        return total;
-      }, 0);
-  
-      return res.status(200).json({
-        success: true,
-        message: 'Revenue and emails within specified date range',
-        data: {
-          startDate,
-          endDate,
-          totalRevenue,
-          emails: emailList,
-        },
-      });
-    } catch (error) {
-      console.error('Error fetching revenue and emails in date range:', error);
-      return res.status(500).json({ success: false, message: 'Internal Server Error' });
-    }
-  };
-  
-  export const refund = async (req, res) => {
-    try {
-      const { email, percent } = req.body;
-      const existingMember = await customerModel.findOne({ email });
-  
-      if (!existingMember) {
-        return res.status(400).json({ success: false, message: 'Customer not found', data: null });
-      }
-        const createdAtDate = moment(existingMember.createdAt);
-      const currentDate = moment();
-      const daysDifference = currentDate.diff(createdAtDate, 'days');
-  
-      if (daysDifference > 7) {
-        return res.status(400).json({
-          success: false,
-          message: 'Refund request cannot be raised for emails created more than 7 days ago',
-          data: null,
-        });
-      }
-  
-      if (existingMember.refundStatus === 'not raised') {
-        existingMember.refundStatus = 'raised';
-      } else {
-        return res.status(400).json({
-          success: false,
-          message: 'You have already raised a refund request',
-          data: null,
-        });
-      }
-  
-      existingMember.refundPercent = percent;
-      await existingMember.save();
-  
-      return res.status(200).json({
-        success: true,
-        message: 'Refund request raised successfully',
-        data: null,
-      });
-    } catch (error) {
-      console.error('Error raising refund request:', error);
-      return res.status(500).json({ success: false, message: 'Internal Server Error' });
-    }
-  };

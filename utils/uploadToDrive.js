@@ -1,61 +1,57 @@
-import { google } from "googleapis";
+import { google } from 'googleapis';
 import fs from 'fs';
+import path from 'path';
 
-const authenticateGoogle = () => {
-    const auth = new google.auth.GoogleAuth({
-        // credentials: {
-        //     private_key: process.env.DRIVE_SECRET,
-        //     client_email:  process.env.DRIVE_MAIL,
-
-        // },
-        keyFile: `${process.cwd()}/seobrook.json`,
-        scopes: "https://www.googleapis.com/auth/drive",
-    });
-    return auth;
+const authenticateGoogle = async () => {
+  const auth = new google.auth.GoogleAuth({
+    keyFile: `${process.cwd()}/seobrook.json`,
+    scopes: 'https://www.googleapis.com/auth/drive.file',
+  });
+  return await auth.getClient(); // Ensure the client is properly authenticated
 };
 
-const uploadToGoogleDrive = async (file, auth, route) => {
+const uploadToGoogleDrive = async (filePath, route) => {
     let parentFolderId;
-    switch (route) {
-        case 'editHeader':
-            parentFolderId = process.env.HEADER_FOLDER_ID;
-            break;
-        case 'editHero':
-            parentFolderId = process.env.HERO_FOLDER_ID;
-            break;
-        case 'editCharacters':
-            parentFolderId = process.env.CHARACTER_FOLDER_ID;
-            break;
-        case 'editOverview':
-            parentFolderId = process.env.OVERVIEW_FOLDER_ID;
-            break;
-        case 'editAuthor':
-            parentFolderId = process.env.AUTHOR_FOLDER_ID;
-            break;
-        case 'editfomoAuthor':
-            parentFolderId = process.env.FOMO_AUTHOR_FOLDER_ID;
-            break;
-        default:
-            parentFolderId = process.env.PARENT_FOLDER_ID;
-            break;
+    if (!filePath) {
+      throw new Error('File path is not provided');
     }
+  
+    switch (route) {
+      case 'editCustomerDetails':
+        parentFolderId = process.env.HERO_FOLDER_ID;
+        break;
+      // Add more cases if needed
+    }
+  
+    const auth = await authenticateGoogle();
+    const drive = google.drive({ version: 'v3', auth });
+  
     const fileMetadata = {
-        name: file.originalname,
-        parents: [parentFolderId], // Change it according to your desired parent folder id
+      name: path.basename(filePath),
+      parents: [parentFolderId],
     };
+  
     const media = {
-        mimeType: file.mimetype,
-        body: fs.createReadStream(file.path),
+      mimeType: 'image/png', // Adjust the MIME type as necessary
+      body: fs.createReadStream(filePath),
     };
-
-    const driveService = google.drive({ version: "v3", auth });
-
-    const response = await driveService.files.create({
+  
+    try {
+      const response = await drive.files.create({
         requestBody: fileMetadata,
         media: media,
-        fields: "id",
-    });
-    return response;
-};
+        fields: 'id, webViewLink', // Include 'webViewLink' to get a viewable link to the file
+      });
+  
+      const fileId = response.data.id;
+      const fileLink = response.data.webViewLink; // This is optional, for easy access to the file
+  
+      return { fileId, fileLink };
+    } catch (error) {
+      console.error('Error uploading file to Google Drive:', error);
+      throw error;
+    }
+  };
+  
 
 export { authenticateGoogle, uploadToGoogleDrive };

@@ -21,3 +21,17 @@ export const protect = async (req, res, next) => {
       return res.status(500).json({success: false, message: 'Internal Server Error', data: null });
     }
 };
+
+export const checkPolicyAccepted = (req, res, next) => {
+    if (req.customer && req.customer.policyAccepted) {
+      next();
+    } else {
+      return res.status(403).json({
+        success: false,
+        message: 'Please accept the cookie policy to proceed',
+        data: null
+      });
+    }
+  };
+  
+  
