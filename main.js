@@ -7,7 +7,7 @@ import PaymentRoutes from "./routes/paymentRoutes.js";
 import CustomerRoutes from "./routes/customerRoutes.js";
 import booksRouter from "./routes/Books.js";
 import commentsRouter from "./routes/Comments.js";
-import ChaptersRouter from "./routes/chapters.js";
+import ChaptersRouter from "./routes/Chapters.js";
 import slidersRouter from "./routes/sliders.js"
 
 colors.enable();
