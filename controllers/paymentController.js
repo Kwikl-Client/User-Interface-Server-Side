@@ -6,15 +6,20 @@ import customerModel from "../models/customerModel.js";
 configDotenv();
 export const stripe = Stripe(process.env.STRIPE_SECRET);
 export const packages = {
-  yearly: process.env.STRIPE_PRICE_ID_COMMUNITY_YEARLY,
+  comYearly: process.env.STRIPE_PRICE_ID_COMMUNITY_YEARLY,
   jumbo: process.env.STRIPE_PRICE_ID_BOOK_CHAT_JUMBO,
-  monthly: process.env.STRIPE_PRICE_ID_COMMUNITY_MONTHLY,
+  comMonthly: process.env.STRIPE_PRICE_ID_COMMUNITY_MONTHLY,
 };
 export const createSubscription = async (req, res) => {
   try {
     const { packageType, email } = req.body;
-    const trialPeriodDays = 1;
-
+    // Determine the trial period based on package type
+    let trialPeriodDays;
+    if (packageType === 'comMonthly') {
+      trialPeriodDays = 3; // 3-day trial for monthly
+    } else if (packageType === 'comYearly' || packageType === 'jumbo') {
+      trialPeriodDays = 7; // 7-day trial for yearly and combo packages
+    }
     if (!packages[packageType]) {
       return res.status(400).send({ error: 'Invalid package type' });
     }
@@ -70,7 +75,13 @@ export const createPaymentIntentForBook = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Invalid package type' });
     }
 
-    const trialPeriodDays = 1;
+    // Set the trial period based on the package type
+    let trialPeriodDays;
+    if (packageType === 'monthly') {
+      trialPeriodDays = 3; // 3-day trial for monthly
+    } else if (packageType === 'yearly' || packageType === 'jumbo') {
+      trialPeriodDays = 7; // 7-day trial for yearly and combo packages
+    }
 
     const session = await stripe.checkout.sessions.create({
       line_items: [
@@ -88,10 +99,18 @@ export const createPaymentIntentForBook = async (req, res) => {
       customer_email: email,
     });
 
-    return res.status(200).json({ success: true, message: 'Subscription payment intent created successfully', data: session });
+    return res.status(200).json({
+      success: true,
+      message: 'Subscription payment intent created successfully',
+      data: session,
+    });
   } catch (error) {
     console.error(error);
-    return res.status(500).json({ success: false, message: 'Internal Server Error', data: null });
+    return res.status(500).json({
+      success: false,
+      message: 'Internal Server Error',
+      data: null,
+    });
   }
 };
 
