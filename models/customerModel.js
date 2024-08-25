@@ -92,7 +92,10 @@ const CustomerSchema = mongoose.Schema(
       type: Boolean,
       default: false
     },
-    
+    isEarlyBird: {
+      type: Boolean,
+      default: false
+    },
     policyAccepted: {
       type: Boolean,
       default: false
