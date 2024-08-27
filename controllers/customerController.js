@@ -88,15 +88,15 @@ export const registerCustomer = async (req, res) => {
 
 export const allUsersData = async (req, res) => {
     try {
-        const { name, email } = req.body;
+        const { email } = req.body;
         const existingMember = await allUsersModel.findOne({ email });
         if (existingMember)
             return res.status(400).json({ success: false, message: `Customer Already Exists, Please Login`, data: null });
-        const newCustomer = await allUsersModel.create({ name, email });
+        const newCustomer = await allUsersModel.create({ email });
         return res.status(201).json({
             success: true,
             message: 'New Customer Account Created Successfully.',
-            data: { name: newCustomer.name, email: newCustomer.email },
+            data: {email: newCustomer.email },
         });
     }
     catch (error) {
