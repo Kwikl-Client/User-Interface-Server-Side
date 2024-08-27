@@ -3,6 +3,7 @@ import fs from 'fs';
 import moment from 'moment-timezone';
 import { stripe } from "./paymentController.js";
 import customerModel from "../models/customerModel.js";
+import allUsersModel from "../models/allUsersModel.js"
 import { encrypt, verifyPwd } from "../utils/hasher.js";
 import { generateAccessToken } from "../utils/generateToken.js";
 import { generate } from "generate-password";
