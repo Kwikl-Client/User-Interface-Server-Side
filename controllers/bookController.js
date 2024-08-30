@@ -6,7 +6,6 @@ import {extractEpilogueFromDocument} from '../utils/extractText.js';
 import { extractWOTSFromDocument } from '../utils/extractText.js';
 import mammoth from 'mammoth';
 import Chapter from '../models/chapterModel.js';
-import Salsskybook from "../models/salsskybookModel.js"
 
 export const getFilteredChapters = async (req, res) => {
   try {
