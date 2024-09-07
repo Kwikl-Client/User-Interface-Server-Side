@@ -9,7 +9,7 @@ const commentSchema = new mongoose.Schema({
     likes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'customers' }],
     replies: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Comment' }],
     isDeleted: { type: Boolean, default: false }, // Soft delete flag
-  deletedAt: { type: Date } // Timestamp of deletion
-});
+  deletedAt: { type: Date }
+}, { timestamps: { createdAt: true, updatedAt: false } });
 
 export default mongoose.model('Comment', commentSchema);
