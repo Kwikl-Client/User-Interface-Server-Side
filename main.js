@@ -8,6 +8,8 @@ import CustomerRoutes from "./routes/customerRoutes.js";
 import booksRouter from "./routes/Books.js";
 import commentsRouter from "./routes/Comments.js";
 import ChaptersRouter from "./routes/Chapters.js";
+import counterWebsite from "./routes/counterWebsite.js";
+
 
 colors.enable();
 dotenv.config();
@@ -22,6 +24,7 @@ app.use("/payment", PaymentRoutes);
 app.use('/books', booksRouter);
 app.use('/comments', commentsRouter);
 app.use('/chapters', ChaptersRouter);
+app.use('/counter', counterWebsite);
 
 const port = process.env.PORT || 4000;
 
