@@ -6,8 +6,8 @@ import customerModel from "../models/customerModel.js";
 configDotenv();
 export const stripe = Stripe(process.env.STRIPE_SECRET);
 export const packages = {
-  comYearly: process.env.STRIPE_PRICE_ID_COMMUNITY_YEARLY,
-  jumbo: process.env.STRIPE_PRICE_ID_BOOK_CHAT_JUMBO,
+   comYearly: process.env.STRIPE_PRICE_ID_COMMUNITY_YEARLY,
+  jumbo: process.env.STRIPE_PRICE_ID_BOOK_CHAT_JUMBO_YEARLY,
   comMonthly: process.env.STRIPE_PRICE_ID_COMMUNITY_MONTHLY,
 };
 export const createSubscription = async (req, res) => {
@@ -68,7 +68,7 @@ export const createPaymentIntentForBook = async (req, res) => {
     const priceIdMap = {
       monthly: process.env.STRIPE_PRICE_ID_BOOK_MONTHLY,
       yearly: process.env.STRIPE_PRICE_ID_BOOK_YEARLY,
-      jumbo: process.env.STRIPE_PRICE_ID_BOOK_CHAT_JUMBO,
+      jumbo: process.env.STRIPE_PRICE_ID_BOOK_CHAT_JUMBO_3MONTHS,
     };
 
     if (!priceIdMap[packageType]) {
