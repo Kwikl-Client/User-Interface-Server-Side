@@ -29,15 +29,20 @@ const countVisitors = async (req, res, next) => {
   }
 };
 
-// Route to display today's visitor count and likes
-router.get('/', countVisitors, async (req, res) => {
+router.get('/', async (req, res) => {
   const currentDate = moment().format('YYYY-MM-DD');
 
   try {
     const todayRecord = await Visitor.findOne({ date: currentDate });
     const count = todayRecord ? todayRecord.count : 0;
-    const likes = todayRecord ? todayRecord.likes : 0; // Get likes
-    res.status(200).json({ success: true, message: 'Visitor count and likes', data: { count, likes } });
+    
+    // Get total likes across all records
+    const totalLikesData = await Visitor.aggregate([
+      { $group: { _id: null, totalLikes: { $sum: '$likes' } } }
+    ]);
+    
+    const totalLikes = totalLikesData.length > 0 ? totalLikesData[0].totalLikes : 0;
+    res.status(200).json({ success: true, message: 'Visitor count and total likes', data: { count, totalLikes } });
   } catch (err) {
     res.status(500).send('Error retrieving visitor count');
   }
@@ -45,34 +50,33 @@ router.get('/', countVisitors, async (req, res) => {
 
 // Route to increment likes
 router.post('/like', async (req, res) => {
+  const currentDate = moment().format('YYYY-MM-DD');
+
   try {
-    // Increment the likes for today's record
-    const todayRecord = await Visitor.findOne({ date: moment().format('YYYY-MM-DD') });
+      // Check for today's record
+      let todayRecord = await Visitor.findOne({ date: currentDate });
 
-    if (todayRecord) {
-      // Increment the likes if today's record exists
-      todayRecord.likes += 1;
-      await todayRecord.save();
-    } else {
-      // Create a new record for today with likes
-      const newRecord = new Visitor({ date: moment().format('YYYY-MM-DD'), count: 0, likes: 1 });
-      await newRecord.save();
-    }
+      if (todayRecord) {
+          // If today's record exists, increment the likes
+          todayRecord.likes += 1; // Increment existing likes count
+          await todayRecord.save(); // Save the updated record
+      } else {
+          // If no record for today, create a new record with 1 like
+          todayRecord = new Visitor({
+              date: currentDate,
+              count: 0, // You can set visitor count as needed
+              likes: 1, // Start with 1 like for the first hit of the day
+          });
+          await todayRecord.save(); // Save the new record
+      }
 
-    // Count all likes from all records
-    const totalLikes = await Visitor.aggregate([
-      { $group: { _id: null, totalLikes: { $sum: '$likes' } } }
-    ]);
-
-    const likesCount = totalLikes.length > 0 ? totalLikes[0].totalLikes : 0;
-
-    res.status(200).json({ success: true, message: 'Likes updated', totalLikes: likesCount });
+      // Return the updated likes count for today
+      res.status(200).json({ success: true, message: 'Likes updated', likes: todayRecord.likes });
   } catch (err) {
-    console.error('Error updating likes count:', err);
-    res.status(500).send('Internal server error');
+      console.error('Error updating likes count:', err);
+      res.status(500).send('Internal server error');
   }
 });
-
 
 // Route to display all visitor counts
 router.get('/all', async (req, res) => {
