@@ -61,6 +61,18 @@ export const createSubscription = async (req, res) => {
   }
 };
 
+
+export const retrievePaymentDetails = async (req, res) => {
+  try {
+    const { sessionId } = req.params;
+    const session = await stripe.checkout.sessions.retrieve(sessionId);
+    return res.status(200).json({ success: true, message: 'payment data retrived successfully', data: session });
+  }
+  catch (error) {
+    console.log(error)
+    return res.status(500).json({ success: false, message: 'Internal Server error', data: null });
+  }
+}
 export const createPaymentIntentForBook = async (req, res) => {
   try {
     const { email, packageType } = req.query;
@@ -75,14 +87,38 @@ export const createPaymentIntentForBook = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Invalid package type' });
     }
 
-    // Set the trial period based on the package type
+    // If package type is 'jumbo', create a checkout session for a one-time payment
+    if (packageType === 'jumbo') {
+      const session = await stripe.checkout.sessions.create({
+        payment_method_types: ['card'],
+        line_items: [
+          {
+            price: priceIdMap.jumbo, // Use the price ID for the one-time payment
+            quantity: 1,
+          },
+        ],
+        mode: 'payment', // Set mode to payment for one-time payment
+        success_url: `https://salssky.com/success?email=${email}&sessionId={CHECKOUT_SESSION_ID}`,
+        cancel_url: `http://salssky.com`,
+        customer_email: email,
+      });
+
+      return res.status(200).json({
+        success: true,
+        message: 'One-time payment checkout session created successfully',
+        data: session,
+      });
+    }
+
+    // Set the trial period based on the package type for subscriptions
     let trialPeriodDays;
     if (packageType === 'monthly') {
       trialPeriodDays = 3; // 3-day trial for monthly
-    } else if (packageType === 'yearly' || packageType === 'jumbo') {
-      trialPeriodDays = 7; // 7-day trial for yearly and combo packages
+    } else if (packageType === 'yearly') {
+      trialPeriodDays = 7; // 7-day trial for yearly
     }
 
+    // Create subscription session for monthly and yearly
     const session = await stripe.checkout.sessions.create({
       line_items: [
         {
@@ -95,13 +131,13 @@ export const createPaymentIntentForBook = async (req, res) => {
         trial_period_days: trialPeriodDays,
       },
       success_url: `https://salssky.com/success?email=${email}&sessionId={CHECKOUT_SESSION_ID}`,
-      cancel_url: `https://salssky.com`,
+      cancel_url: `http://salssky.com`,
       customer_email: email,
     });
 
     return res.status(200).json({
       success: true,
-      message: 'Subscription payment intent created successfully',
+      message: 'Subscription checkout session created successfully',
       data: session,
     });
   } catch (error) {
@@ -113,18 +149,6 @@ export const createPaymentIntentForBook = async (req, res) => {
     });
   }
 };
-
-export const retrievePaymentDetails = async (req, res) => {
-  try {
-    const { sessionId } = req.params;
-    const session = await stripe.checkout.sessions.retrieve(sessionId);
-    return res.status(200).json({ success: true, message: 'payment data retrived successfully', data: session });
-  }
-  catch (error) {
-    console.log(error)
-    return res.status(500).json({ success: false, message: 'Internal Server error', data: null });
-  }
-}
 
 export const cancelSubscription = async (req, res) => {
   try {
