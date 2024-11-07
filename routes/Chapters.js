@@ -9,6 +9,7 @@ import {
   deleteEpilogueFromChapter,
   getWotsFromChapter,
   uploadWotsForChapter,
+  getFirstFourPlotsFromChapter,
 } from '../controllers/bookController.js';
 import upload from '../middlewares/multermiddlewares.js'; // Import the middleware from the correct file
 
@@ -16,6 +17,8 @@ const router = express.Router();
 
 router.get('/literature', getFilteredChapters);
 router.get('/plot', getSceneFromChapter);
+router.get('/preview-plots', getFirstFourPlotsFromChapter);
+
 router.get('/epilogue', getEpilogueFromChapter);
 router.get('/wots', getWotsFromChapter); // New WOTS route
 
