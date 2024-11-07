@@ -6,6 +6,7 @@ import {extractEpilogueFromDocument} from '../utils/extractText.js';
 import { extractWOTSFromDocument } from '../utils/extractText.js';
 import mammoth from 'mammoth';
 import Chapter from '../models/chapterModel.js';
+import Preview from "../models/previewModel.js";
 
 export const getFilteredChapters = async (req, res) => {
   try {
@@ -52,6 +53,20 @@ export const getSceneFromChapter = async (req, res) => {
       res.status(500).json({ message: error.message });
   }
 };
+
+export const getFirstFourPlotsFromChapter = async (req, res) => {
+  try {
+    // Fetch all chapters from the database
+
+    const result = await Preview.find();
+    res.json(result);
+  } catch (error) {
+    console.error('Error finding chapters:', error); // Log the error for debugging
+    res.status(500).json({ message: 'Internal server error', error: error.message });
+  }
+};
+
+
 export const getEpilogueFromChapter = async (req, res) => {
   try {
     const { chapterName } = req.query;
