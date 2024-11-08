@@ -6,7 +6,7 @@ import customerModel from "../models/customerModel.js";
 configDotenv();
 export const stripe = Stripe(process.env.STRIPE_SECRET);
 export const packages = {
-   comYearly: process.env.STRIPE_PRICE_ID_COMMUNITY_YEARLY,
+  comYearly: process.env.STRIPE_PRICE_ID_COMMUNITY_YEARLY,
   jumbo: process.env.STRIPE_PRICE_ID_BOOK_CHAT_JUMBO_YEARLY,
   comMonthly: process.env.STRIPE_PRICE_ID_COMMUNITY_MONTHLY,
 };
@@ -61,53 +61,20 @@ export const createSubscription = async (req, res) => {
   }
 };
 
-
-export const retrievePaymentDetails = async (req, res) => {
-  try {
-    const { sessionId } = req.params;
-    const session = await stripe.checkout.sessions.retrieve(sessionId);
-    return res.status(200).json({ success: true, message: 'payment data retrived successfully', data: session });
-  }
-  catch (error) {
-    console.log(error)
-    return res.status(500).json({ success: false, message: 'Internal Server error', data: null });
-  }
-}
 export const createPaymentIntentForBook = async (req, res) => {
   try {
     const { email, packageType } = req.query;
 
+    // Define the price ID map for subscriptions, including the 'jumbo' package
     const priceIdMap = {
       monthly: process.env.STRIPE_PRICE_ID_BOOK_MONTHLY,
       yearly: process.env.STRIPE_PRICE_ID_BOOK_YEARLY,
-      jumbo: process.env.STRIPE_PRICE_ID_BOOK_CHAT_JUMBO_3MONTHS,
+      jumbo: process.env.STRIPE_PRICE_ID_BOOK_CHAT_JUMBO_3MONTHS, // Jumbo as subscription
     };
 
+    // Ensure the package type is valid
     if (!priceIdMap[packageType]) {
       return res.status(400).json({ success: false, message: 'Invalid package type' });
-    }
-
-    // If package type is 'jumbo', create a checkout session for a one-time payment
-    if (packageType === 'jumbo') {
-      const session = await stripe.checkout.sessions.create({
-        payment_method_types: ['card'],
-        line_items: [
-          {
-            price: priceIdMap.jumbo, // Use the price ID for the one-time payment
-            quantity: 1,
-          },
-        ],
-        mode: 'payment', // Set mode to payment for one-time payment
-        success_url: `https://salssky.com/success?email=${email}&sessionId={CHECKOUT_SESSION_ID}`,
-        cancel_url: `http://salssky.com`,
-        customer_email: email,
-      });
-
-      return res.status(200).json({
-        success: true,
-        message: 'One-time payment checkout session created successfully',
-        data: session,
-      });
     }
 
     // Set the trial period based on the package type for subscriptions
@@ -116,9 +83,11 @@ export const createPaymentIntentForBook = async (req, res) => {
       trialPeriodDays = 3; // 3-day trial for monthly
     } else if (packageType === 'yearly') {
       trialPeriodDays = 7; // 7-day trial for yearly
+    } else if (packageType === 'jumbo') {
+      trialPeriodDays = 5; // You can set a different trial period for 'jumbo' if needed
     }
 
-    // Create subscription session for monthly and yearly
+    // Create subscription session for the selected package
     const session = await stripe.checkout.sessions.create({
       line_items: [
         {
@@ -126,9 +95,9 @@ export const createPaymentIntentForBook = async (req, res) => {
           quantity: 1,
         },
       ],
-      mode: "subscription",
+      mode: "subscription", // Set mode to subscription
       subscription_data: {
-        trial_period_days: trialPeriodDays,
+        trial_period_days: trialPeriodDays, // Set the trial period
       },
       success_url: `https://salssky.com/success?email=${email}&sessionId={CHECKOUT_SESSION_ID}`,
       cancel_url: `http://salssky.com`,
@@ -149,6 +118,59 @@ export const createPaymentIntentForBook = async (req, res) => {
     });
   }
 };
+
+
+export const PaymentIntentToAuthor = async (req, res) => {
+  try {
+    const { email } = req.body; // Expecting email in the request body
+
+    // Create a checkout session for the one-time payment
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ['card'],
+      line_items: [
+        {
+          price_data: {
+            currency: 'usd',
+            product_data: {
+              name: 'Talk with Author',
+            },
+            unit_amount: 499, // $4.99 in cents
+          },
+          quantity: 1,
+        },
+      ],
+      mode: 'payment',
+      success_url: `https://yourwebsite.com/success?email=${email}&session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `https://yourwebsite.com/cancel`,
+      customer_email: email,
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: 'Payment checkout session created successfully',
+      data: session,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      success: false,
+      message: 'Internal Server Error',
+      data: null,
+    });
+  }
+};
+
+export const retrievePaymentDetails = async (req, res) => {
+  try {
+    const { sessionId } = req.params;
+    const session = await stripe.checkout.sessions.retrieve(sessionId);
+    return res.status(200).json({ success: true, message: 'payment data retrived successfully', data: session });
+  }
+  catch (error) {
+    console.log(error)
+    return res.status(500).json({ success: false, message: 'Internal Server error', data: null });
+  }
+}
 
 export const cancelSubscription = async (req, res) => {
   try {
