@@ -1,5 +1,7 @@
 import express from 'express';
-import { allUsersData,registerCustomer, loginCustomer,acceptCookiePolicy,editCustomerDetails, raiseCommunityRequest, verifyTkn, checkEmail, forgotPassword} from '../controllers/customerController.js';
+import { allUsersData,registerCustomer, loginCustomer,acceptCookiePolicy,editCustomerDetails, 
+    raiseCommunityRequest, verifyTkn, checkEmail, forgotPassword,bookAppointment
+} from '../controllers/customerController.js';
 import { protect } from '../middlewares/authmiddlewares.js';
 import uploadImg from '../middlewares/uploadFilemiddlewares.js';
 import upload from '../middlewares/multermiddlewares.js';
@@ -15,7 +17,7 @@ CustomerRoutes.patch('/editCustomerDetails',
     protect,
     editCustomerDetails
 );
-
+CustomerRoutes.post('/book-appointment-author/:email', bookAppointment)
 CustomerRoutes.get('/raiseCommunityRequest/:email', raiseCommunityRequest)
 CustomerRoutes.post('/forgotPassword', forgotPassword);
 CustomerRoutes.post('/acceptPolicy', protect, acceptCookiePolicy);
