@@ -156,48 +156,6 @@ export const createPaymentIntentForBook = async (req, res) => {
     });
   }
 };
-
-
-export const PaymentIntentToAuthor = async (req, res) => {
-  try {
-    const { email } = req.body; // Expecting email in the request body
-
-    // Create a checkout session for the one-time payment
-    const session = await stripe.checkout.sessions.create({
-      payment_method_types: ['card'],
-      line_items: [
-        {
-          price_data: {
-            currency: 'usd',
-            product_data: {
-              name: 'Talk with Author',
-            },
-            unit_amount: 499, // $4.99 in cents
-          },
-          quantity: 1,
-        },
-      ],
-      mode: 'payment',
-      success_url: `https://yourwebsite.com/success?email=${email}&session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `https://yourwebsite.com/cancel`,
-      customer_email: email,
-    });
-
-    return res.status(200).json({
-      success: true,
-      message: 'Payment checkout session created successfully',
-      data: session,
-    });
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({
-      success: false,
-      message: 'Internal Server Error',
-      data: null,
-    });
-  }
-};
-
 export const retrievePaymentDetails = async (req, res) => {
   try {
     const { sessionId } = req.params;
