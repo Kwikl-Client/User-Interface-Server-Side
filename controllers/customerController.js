@@ -10,7 +10,34 @@ import { generate } from "generate-password";
 import sendMail from "../utils/sendMail.js";
 import { authenticateGoogle, uploadToGoogleDrive } from "../utils/uploadToDrive.js";
 
+export const bookAppointment = async (req, res) => {
+    const { email } = req.params;
 
+    try {
+        const existingUser = await customerModel.findOne({ email: email.trim(), customerType: "member" });
+        if (!existingUser) {
+            console.log("User not found or not a member type");
+            return res.status(400).json({ success: false, message: 'Customer not found or not a member', data: null });
+        }
+        if (existingUser.talkToStarStatus === 'raised') {
+            return res.status(400).json({
+                success: true,
+                message: 'Request to talk to the author has already been raised.',
+                data: existingUser,
+            });
+        }
+        existingUser.talkToStarStatus = 'raised';
+        await existingUser.save();
+        return res.status(200).json({
+            success: true,
+            message: 'Appointment booked successfully, join community status and talk to star status updated to raised.',
+            data: existingUser,
+        });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({ success: false, message: 'Internal Server Error', data: null });
+    }
+};
 export const registerCustomer = async (req, res) => {
     try {
         const { email, stripeDetails } = req.body;
