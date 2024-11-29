@@ -117,19 +117,24 @@ export const registerCustomer = async (req, res) => {
 export const allUsersData = async (req, res) => {
     try {
         const { email } = req.body;
-        const existingMember = await allUsersModel.findOne({ email });
-        if (existingMember)
-            return res.status(400).json({ success: false, message: `Customer Already Exists, Please Login`, data: null });
-        const newCustomer = await allUsersModel.create({ email });
-        return res.status(201).json({
-            success: true,
-            message: 'New Customer Account Created Successfully.',
-            data: {email: newCustomer.email },
-        });
+        const emailcheck = await customerModel.findOne({ email });
+        if(!emailcheck){
+            const newCustomer = await allUsersModel.create({ email });
+        
+            return res.status(201).json({
+                success: true,
+                message: 'New Customer Account Created Successfully.',
+                data: { email: newCustomer.email },
+            });
+        }
+        else{
+            return res.status(500).json({ success: false, message: 'Email already exixts. please try with other email', data: null });
+  
+        }
     }
     catch (error) {
         console.log(error);
-        return res.status(500).json({ success: false, message: 'Internal Server error', data: null });
+        return res.status(500).json({ success: false, message: 'Internal Server Error', data: null });
     }
 };
 
