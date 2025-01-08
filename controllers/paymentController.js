@@ -118,11 +118,11 @@ export const createPaymentIntentForBook = async (req, res) => {
     // Set the trial period based on the package type for subscriptions
     let trialPeriodDays;
     if (packageType === 'monthly') {
-      trialPeriodDays = 3; // 3-day trial for monthly
+      trialPeriodDays = 7; // 3-day trial for monthly
     } else if (packageType === 'yearly') {
       trialPeriodDays = 7; // 7-day trial for yearly
     } else if (packageType === 'jumbo') {
-      trialPeriodDays = 5; // You can set a different trial period for 'jumbo' if needed
+      trialPeriodDays = 7; // You can set a different trial period for 'jumbo' if needed
     }
 
     // Create subscription session for the selected package
