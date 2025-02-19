@@ -9,6 +9,7 @@ import booksRouter from "./routes/Books.js";
 import commentsRouter from "./routes/Comments.js";
 import ChaptersRouter from "./routes/Chapters.js";
 import counterWebsite from "./routes/counterWebsite.js";
+import ContentRoutes from "./routes/contentRoutes.js";
 
 
 colors.enable();
@@ -25,6 +26,7 @@ app.use('/books', booksRouter);
 app.use('/comments', commentsRouter);
 app.use('/chapters', ChaptersRouter);
 app.use('/counter', counterWebsite);
+app.use("/cms", ContentRoutes);
 
 const port = process.env.PORT || 4000;
 
