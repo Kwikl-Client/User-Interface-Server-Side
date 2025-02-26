@@ -18,7 +18,7 @@ export const createPaymentIntentForBook = async (req, res) => {
     const priceId = process.env.STRIPE_PRICE_ID_BOOK_YEARLY;
 
     // Define the trial period (if applicable)
-    const trialPeriodDays = 7; // 7-day trial for yearly
+    // const trialPeriodDays = 7; // 7-day trial for yearly
 
     // Create the subscription session
     const session = await stripe.checkout.sessions.create({
@@ -29,9 +29,9 @@ export const createPaymentIntentForBook = async (req, res) => {
         },
       ],
       mode: "subscription", // Set mode to subscription
-      subscription_data: {
-        trial_period_days: trialPeriodDays, // Set the trial period
-      },
+      // subscription_data: {
+        // trial_period_days: trialPeriodDays, // Set the trial period
+      // },
       success_url: `https://salssky.com/success?email=${email}&sessionId={CHECKOUT_SESSION_ID}`,
       cancel_url: `https://salssky.com`,
       customer_email: email,
