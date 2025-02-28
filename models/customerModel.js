@@ -76,10 +76,10 @@ const CustomerSchema = mongoose.Schema(
       enum: ['not raised', 'raised', 'accepted', 'declined'],
       default: 'not raised'
     },
-    refundStatus: {
-      type: String,
-      enum: ['not valid', 'valid', 'refunded', 'declined'],
-    },
+    // refundStatus: {
+    //   type: String,
+    //   enum: ['not valid', 'valid', 'refunded', 'declined'],
+    // },
     lastHelpMessageSentAt: {
       type: Date,
       default: null
