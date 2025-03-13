@@ -18,7 +18,6 @@ CustomerRoutes.patch('/editCustomerDetails',
     protect,
     editCustomerDetails
 );
-CustomerRoutes.post('/book-appointment-author/:email', bookAppointment)
 CustomerRoutes.get('/raiseCommunityRequest/:email', raiseCommunityRequest)
 CustomerRoutes.post('/forgotPassword', forgotPassword);
 CustomerRoutes.post('/acceptPolicy', protect, acceptCookiePolicy);
