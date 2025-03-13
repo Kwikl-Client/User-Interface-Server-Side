@@ -310,6 +310,46 @@ export const forgotPassword = async (req, res) => {
         return res.status(500).json({ error: 'Server error' });
     }
 };
+export const starUserCheck = async (req, res) => {
+    const { email, userType } = req.body; // Expecting email and userType in the request body
+    try {
+        const existingUser = await customerModel.findOne({ email: email }); // Find by email
+        if (!existingUser) {
+            return res.status(400).json({ success: false, message: 'Customer not found', data: null });
+        }
+        await existingUser.save();
+        const userEmail = existingUser.email;
+        if (userType === 'host') {
+            const generatedCode = generate({
+                length: 6, 
+                numbers: true, 
+                symbols: true, 
+                uppercase: true, 
+                lowercase: true, 
+            });
+
+            await sendMail(userEmail, "Your Host Code", `Your unique access code for host is: ${generatedCode}.`);
+
+            return res.status(200).json({
+                success: true,
+                message: 'successfully host code sent',
+                data: existingUser
+            });
+        }
+
+        // If not a host, just send a regular email
+        await sendMail(userEmail, "Star Member", `Woooo! Your ID has been added to the Host member.`)
+        return res.status(200).json({
+            success: true,
+            message: 'request raised successfully',
+            data: existingUser
+        });
+    }
+    catch (error) {
+        console.log(error);
+        return res.status(500).json({ success: false, message: 'Internal Server Error', data: null });
+    }
+};
 export const acceptCookiePolicy = async (req, res) => {
     try {
         const customer = req.customer; // Accessing customer from the middleware
