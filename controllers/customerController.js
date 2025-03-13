@@ -113,7 +113,30 @@ export const registerCustomer = async (req, res) => {
         });
     }
 };
+export const dailyUserCount = async (req, res) => {
+    try {
+        const todayEST = moment().tz("America/New_York").format("YYYY-MM-DD");
+        const userCount = await allUsersModel.countDocuments({
+            createdAt: {
+                $gte: new Date(todayEST + "T00:00:00.000Z"),
+                $lt: new Date(todayEST + "T23:59:59.999Z"),
+            },
+        });
+        const count = 99-userCount;
+        return res.status(200).json({
+            success: true,
+            count, // Just returns the number
+        });
 
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({
+            success: false,
+            message: "Internal Server Error",
+            userCount: null
+        });
+    }
+};
 export const allUsersData = async (req, res) => {
     try {
         const { email } = req.body;
