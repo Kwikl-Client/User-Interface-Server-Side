@@ -12,9 +12,13 @@ const fetchCounter = (req, res) => {
   res.json({ count: userCount });
 };
 
-// Decrement counter every 30 minutes
+// Decrement counter every 30 minutes and reset to 99 if it hits 1
 const decrementCounter = () => {
-  userCount = Math.max(userCount - 1, 1);
+  if (userCount > 1) {
+    userCount--;
+  } else {
+    userCount = COUNT_START; // Reset to 99
+  }
   console.log(`Counter updated: ${userCount}`);
 };
 
