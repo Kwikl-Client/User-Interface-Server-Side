@@ -10,6 +10,7 @@ import commentsRouter from "./routes/Comments.js";
 import ChaptersRouter from "./routes/Chapters.js";
 import counterWebsite from "./routes/counterWebsite.js";
 import ContentRoutes from "./routes/contentRoutes.js";
+import feedbackRouter from "./routes/feedback.js";
 
 
 colors.enable();
@@ -27,6 +28,7 @@ app.use('/comments', commentsRouter);
 app.use('/chapters', ChaptersRouter);
 app.use('/counter', counterWebsite);
 app.use("/cms", ContentRoutes);
+app.use('/send-feedback', feedbackRouter);
 
 const port = process.env.PORT || 4000;
 
