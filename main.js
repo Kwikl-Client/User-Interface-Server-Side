@@ -11,7 +11,7 @@ import ChaptersRouter from "./routes/Chapters.js";
 import counterWebsite from "./routes/counterWebsite.js";
 import ContentRoutes from "./routes/contentRoutes.js";
 import feedbackRouter from "./routes/feedback.js";
-
+import GameRoutes from './routes/gameRoutes.js';
 
 colors.enable();
 dotenv.config();
@@ -29,6 +29,7 @@ app.use('/chapters', ChaptersRouter);
 app.use('/counter', counterWebsite);
 app.use("/cms", ContentRoutes);
 app.use('/send-feedback', feedbackRouter);
+app.use('/quiz-game' , GameRoutes);
 
 const port = process.env.PORT || 4000;
 
