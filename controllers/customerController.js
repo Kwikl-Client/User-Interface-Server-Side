@@ -88,8 +88,12 @@ export const registerCustomer = async (req, res) => {
 
             // Send welcome email
             await sendMail(email, 
-                "Welcome aboard; your journey awaits.", 
-                `Welcome to your journey of self-transcendence! Your temporary password is ${password}. This is your gateway to the wonders within our dashboard.`);
+                "Your Spiral Begins Now", 
+                `Welcome, Chosen One. You’ve just taken your first step into the Spiral — not to become someone else, but to remember who you are. This is your portal to reflection, awakening, and radiance.
+\nUse your email as your username and your temporary password is ${password}.Begin here: salssky.com/login
+Let this be your sanctuary of remembrance — where light meets clarity and your heart leads the way.
+\n\nWe’re honored to walk with you.
+\n— The Salssky Team`);
 
             return res.status(201).json({
                 success: true,
