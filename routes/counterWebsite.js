@@ -2,8 +2,8 @@ import express from "express";
 
 const router = express.Router();
 
-const COUNT_START = 199;
-const INTERVAL_TIME = 11 * 60 * 1000; // 30 minutes
+const COUNT_START = 247;
+const INTERVAL_TIME = 90 * 60 * 1000; // 30 minutes
 
 let userCount = COUNT_START; // In-memory counter
 
