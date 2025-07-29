@@ -52,177 +52,68 @@ export const createPaymentIntentForBook = async (req, res) => {
   }
 };
 
-export const createSubscription = async (req, res) => {
-  try {
-    const { packageType, email } = req.body;
-    // Determine the trial period based on package type
-    let trialPeriodDays;
-    if (packageType === 'comMonthly') {
-      trialPeriodDays = 3; // 3-day trial for monthly
-    } else if (packageType === 'comYearly' || packageType === 'jumbo') {
-      trialPeriodDays = 7; // 7-day trial for yearly and combo packages
-    }
-    if (!packages[packageType]) {
-      return res.status(400).send({ error: 'Invalid package type' });
-    }
-    const customer = await customerModel.findOne({ email });
-    if (!customer) {
-      return res.status(404).send({ error: 'Customer not found' });
-    }
-    const trialEndTimestamp = Math.floor(Date.now() / 1000) + 24 * 60 * 60;
-    const session = await stripe.checkout.sessions.create({
-      payment_method_types: ['card'],
-      success_url: 'https://salssky.com/community',
-      cancel_url: 'https://salssky.com/',
-      line_items: [
-        {
-          price: packages[packageType],
-          quantity: 1,
-        },
-      ],
-      mode: 'subscription',
-      customer_email: email,
-      client_reference_id: email,
-      subscription_data: {
-        trial_period_days: trialPeriodDays,
-      },
-    });
-
-    // Push new session ID and package type to the customer's subscription details
-    customer.subscriptionDetails.push({
-      sessionId: session.id,
-      packageType: packageType,
-    });
-    await customer.save();
-
-    // Return the session URL and session ID to the frontend
-    res.json({ url: session.url, sessionId: session.id });
-  } catch (e) {
-    console.error('Error creating checkout session:', e.message);
-    res.status(500).json({ error: e.message });
-  }
-};
-
-// export const createPaymentIntentForBook = async (req, res) => {
-//   try {
-//     const { email, packageType } = req.query;
-
-//     // Define the price ID map for subscriptions, including the 'jumbo' package
-//     const priceIdMap = {
-//       monthly: process.env.STRIPE_PRICE_ID_BOOK_MONTHLY,
-//       yearly: process.env.STRIPE_PRICE_ID_BOOK_YEARLY,
-//       jumbo: process.env.STRIPE_PRICE_ID_BOOK_CHAT_JUMBO_3MONTHS, // Jumbo as subscription
-//     };
-
-//     // Ensure the package type is valid
-//     if (!priceIdMap[packageType]) {
-//       return res.status(400).json({ success: false, message: 'Invalid package type' });
-//     }
-
-//     // Set the trial period based on the package type for subscriptions
-//     let trialPeriodDays;
-//     if (packageType === 'monthly') {
-//       trialPeriodDays = 7; // 3-day trial for monthly
-//     } else if (packageType === 'yearly') {
-//       trialPeriodDays = 7; // 7-day trial for yearly
-//     } else if (packageType === 'jumbo') {
-//       trialPeriodDays = 7; // You can set a different trial period for 'jumbo' if needed
-//     }
-
-//     // Create subscription session for the selected package
-//     const session = await stripe.checkout.sessions.create({
-//       line_items: [
-//         {
-//           price: priceIdMap[packageType],
-//           quantity: 1,
-//         },
-//       ],
-//       mode: "subscription", // Set mode to subscription
-//       subscription_data: {
-//         trial_period_days: trialPeriodDays, // Set the trial period
-//       },
-//       success_url: `https://salssky.com/success?email=${email}&sessionId={CHECKOUT_SESSION_ID}`,
-//       cancel_url: `http://salssky.com`,
-//       customer_email: email,
-//     });
-
-//     return res.status(200).json({
-//       success: true,
-//       message: 'Subscription checkout session created successfully',
-//       data: session,
-//     });
-//   } catch (error) {
-//     console.error(error);
-//     return res.status(500).json({
-//       success: false,
-//       message: 'Internal Server Error',
-//       data: null,
-//     });
-//   }
-// };
-
 export const PaymentIntentToAuthor = async (req, res) => {
-  try {
-    const { email } = req.body; // Expecting email in the request body
-    const customer = await customerModel.findOne({ email });
+    try {
+        const { email, meetingId, type } = req.body;
 
-    // Check if customer exists
-    if (!customer) {
-      return res.status(404).json({
-        success: false,
-        message: 'Customer not found.',
-        data: null,
-      });
+        const customer = await customerModel.findOne({ email });
+
+        if (!customer) {
+            return res.status(404).json({
+                success: false,
+                message: "Customer not found.",
+                data: null,
+            });
+        }
+
+        // Set unit amount based on role type
+        let unitAmount;
+        if (type === 'participant') {
+            unitAmount = 4999; // $49.99
+        } else if (type === 'audience') {
+            unitAmount = 1999; // $19.99
+        } else {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid type. Must be 'participant' or 'audience'.",
+                data: null,
+            });
+        }
+
+        const session = await stripe.checkout.sessions.create({
+            payment_method_types: ["card"],
+            line_items: [
+                {
+                    price_data: {
+                        currency: "usd",
+                        product_data: {
+                            name: "Talk with Author",
+                        },
+                        unit_amount: unitAmount,
+                    },
+                    quantity: 1,
+                },
+            ],
+            mode: "payment",
+            success_url: `http://localhost:5173/meetings?success=true&email=${email}&session_id={CHECKOUT_SESSION_ID}&meetingId=${meetingId}&role=${type}`,
+            cancel_url: `http://localhost:5173/meetings?success=false`,
+            customer_email: email,
+        });
+
+        return res.status(200).json({
+            success: true,
+            message: "Payment checkout session created successfully",
+            data: session,
+        });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({
+            success: false,
+            message: "Internal Server Error",
+            data: null,
+        });
     }
-
-    // Check if userType is 'member'
-    if (customer.userType !== 'member') {
-      return res.status(400).json({
-        success: false,
-        message: 'Only member user type is eligible for talk to star.',
-        data: null,
-      });
-    }
-
-    // If user is a member, proceed to create the payment session
-    const unitAmount = 9900; // $99 in cents for members
-
-    // Create a checkout session for the one-time payment
-    const session = await stripe.checkout.sessions.create({
-      payment_method_types: ['card'],
-      line_items: [
-        {
-          price_data: {
-            currency: 'usd',
-            product_data: {
-              name: 'Talk with Author',
-            },
-            unit_amount: unitAmount, // Price for member
-          },
-          quantity: 1,
-        },
-      ],
-      mode: 'payment',
-      success_url: `https://salssky.com/success?email=${email}&session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `https://salssky.com/cancel`,
-      customer_email: email,
-    });
-
-    return res.status(200).json({
-      success: true,
-      message: 'Payment checkout session created successfully',
-      data: session,
-    });
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({
-      success: false,
-      message: 'Internal Server Error',
-      data: null,
-    });
-  }
 };
-
 
 export const retrievePaymentDetails = async (req, res) => {
   try {
