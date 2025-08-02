@@ -1,7 +1,8 @@
 import express from 'express';
 import { allUsersData,registerCustomer, loginCustomer,acceptCookiePolicy,editCustomerDetails, 
     raiseCommunityRequest, verifyTkn, checkEmail, forgotPassword,dailyUserCount,
-    starUserCheck
+    starUserCheck,bookAppointment,
+    updateBankDetails
 } from '../controllers/customerController.js';
 import { protect } from '../middlewares/authmiddlewares.js';
 import uploadImg from '../middlewares/uploadFilemiddlewares.js';
@@ -18,7 +19,10 @@ CustomerRoutes.patch('/editCustomerDetails',
     protect,
     editCustomerDetails
 );
-CustomerRoutes.get('/raiseCommunityRequest/:email', raiseCommunityRequest)
+CustomerRoutes.patch('/updateBankDetails',updateBankDetails);
+CustomerRoutes.post('/book-appointment-author/:email', bookAppointment)
+CustomerRoutes.put('/raiseCommunityRequest/:email', raiseCommunityRequest)
+CustomerRoutes.post('/checkStarMember', starUserCheck);
 CustomerRoutes.post('/forgotPassword', forgotPassword);
 CustomerRoutes.post('/acceptPolicy', protect, acceptCookiePolicy);
 export default CustomerRoutes;
