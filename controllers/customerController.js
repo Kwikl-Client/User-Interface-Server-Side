@@ -194,30 +194,75 @@ export const loginCustomer = async (req, res) => {
 
 export const editCustomerDetails = async (req, res) => {
     try {
+        // console.log("Received request to edit customer details");
         let { oldPassword, newPassword, country, phoneNumber } = req.body;
         const customer = req.customer;
-        if (oldPassword && newPassword) {
-            var isMatching = await verifyPwd(oldPassword, customer.password);
-            if (!isMatching)
-                return res.status(401).json({ success: false, message: 'Incorrect old password', data: null });
-            const hashedNewPwd = await encrypt(newPassword);
-            customer.password = hashedNewPwd;
-            await sendMail(customer.email, 'Password Change Notification', 'Your password has been successfully updated.');
+
+        if (!customer) {
+            // console.log("Customer not found in request");
+            return res.status(400).json({
+                success: false,
+                message: "Customer not found",
+                data: null,
+            });
         }
+
+        if (oldPassword && newPassword) {
+            console.log("Password change requested");
+            const isMatching = await verifyPwd(oldPassword, customer.password);
+            // console.log("Password match result:", isMatching);
+
+            if (!isMatching) {
+                console.log("Old password does not match");
+                return res.status(401).json({
+                    success: false,
+                    message: "Incorrect old password",
+                    data: null,
+                });
+            }
+
+            const hashedNewPwd = await encrypt(newPassword);
+            console.log("New hashed password:", hashedNewPwd);
+            console.log("Old hashed password:", customer.password);
+            customer.password = hashedNewPwd;
+
+            const { subject, text, html } = emailTemplates.passwordChanged();
+            // console.log("Sending password changed email to:", customer.email);
+
+            await sendMail(customer.email, subject, text, html);
+        }
+
+        // Logging profile changes
+        // console.log("Updating customer profile fields");
+        // console.log("Old country:", customer.country, "New country:", country);
+        // console.log("Old phoneNumber:", customer.phoneNumber, "New phoneNumber:", phoneNumber);
+
         customer.country = country || customer.country;
         customer.phoneNumber = phoneNumber || customer.phoneNumber;
+
         const updatedCustomer = await customer.save();
+        // console.log("Customer updated successfully:", updatedCustomer._id);
+
+        const token = oldPassword && newPassword
+            ? generateAccessToken(customer._id, customer.email, customer.name)
+            : null;
+
         return res.status(200).json({
             success: true,
-            message: 'Customer profile edited successfully',
+            message: "Customer profile edited successfully",
             data: updatedCustomer,
-            accessToken: isMatching ? generateAccessToken(customer._id, customer.email, customer.name) : null,
+            accessToken: token,
+        });
+    } catch (error) {
+        console.error("Error in editCustomerDetails:", error);
+        return res.status(500).json({
+            success: false,
+            message: "Internal Server error",
+            data: null,
         });
     }
-    catch (error) {
-        return res.status(500).json({ success: false, message: 'Internal Server error', data: null });
-    }
 };
+
   
 export const verifyTkn = async (req, res) => {
     try {
@@ -373,3 +418,4 @@ export const acceptCookiePolicy = async (req, res) => {
 };
 
   
+
