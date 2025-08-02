@@ -14,30 +14,69 @@ export const bookAppointment = async (req, res) => {
     const { email } = req.params;
 
     try {
-        const existingUser = await customerModel.findOne({ email: email.trim(), customerType: "member" });
+        const existingUser = await customerModel.findOne({
+            email: email.trim(),
+            customerType: "member",
+        });
+
         if (!existingUser) {
-            console.log("User not found or not a member type");
-            return res.status(400).json({ success: false, message: 'Customer not found or not a member', data: null });
-        }
-        if (existingUser.talkToStarStatus === 'raised') {
             return res.status(400).json({
+                success: false,
+                message: "Customer not found or not a member",
+                data: null,
+            });
+        }
+
+        if (existingUser.talkToStarStatus === "raised") {
+            const raisedAt = existingUser.talkToStarStatusRaisedAt;
+
+            if (raisedAt) {
+                const now = new Date();
+                const diffInMs = now - new Date(raisedAt);
+                const daysPassed = diffInMs / (1000 * 60 * 60 * 24);
+
+                if (daysPassed < 30) {
+                    const daysLeft = Math.ceil(30 - daysPassed);
+                    return res.status(429).json({
+                        success: false,
+                        message: `You've already raised a request. Please wait ${daysLeft} more day(s) before you can request again.`,
+                        data: null,
+                    });
+                }
+            }
+            // 30 or more days passed or no raisedAt date — reset and update
+            existingUser.talkToStarStatus = "raised";
+            existingUser.talkToStarStatusRaisedAt = new Date();
+            await existingUser.save();
+
+            return res.status(200).json({
                 success: true,
-                message: 'Request to talk to the author has already been raised.',
+                message: "Appointment rebooked after 30 days.",
                 data: existingUser,
             });
         }
-        existingUser.talkToStarStatus = 'raised';
+
+        // Status not raised yet — book first time
+        existingUser.talkToStarStatus = "raised";
+        existingUser.talkToStarStatusRaisedAt = new Date();
         await existingUser.save();
+
         return res.status(200).json({
             success: true,
-            message: 'Appointment booked successfully, join community status and talk to star status updated to raised.',
+            message: "Appointment booked successfully. You may rebook after 30 days.",
             data: existingUser,
         });
+
     } catch (error) {
-        console.log(error);
-        return res.status(500).json({ success: false, message: 'Internal Server Error', data: null });
+        console.error(error);
+        return res.status(500).json({
+            success: false,
+            message: "Internal Server Error",
+            data: null,
+        });
     }
 };
+
 export const registerCustomer = async (req, res) => {
     try {
         const { email, stripeDetails } = req.body;
@@ -418,4 +457,5 @@ export const acceptCookiePolicy = async (req, res) => {
 };
 
   
+
 
