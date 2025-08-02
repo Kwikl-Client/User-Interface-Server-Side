@@ -456,6 +456,64 @@ export const acceptCookiePolicy = async (req, res) => {
     }
 };
 
-  
+  export const updateBankDetails = async (req, res) => {
+    try {
+        const {
+            customId,
+            accountHolderName,
+            bankName,
+            accountNumber,
+            ifscCode,
+            branchName,
+        } = req.body;
+
+        if (!customId) {
+            return res.status(400).json({ message: "customId is required" });
+        }
+
+        // Find customer using customId
+        const customer = await customerModel.findOne({ customId });
+
+        if (!customer) {
+            return res
+                .status(404)
+                .json({ message: "Admin with this customId not found" });
+        }
+
+        // Check if the user is admin
+        // if (customer.customerType !== "admin") {
+        //     return res
+        //         .status(403)
+        //         .json({ message: "Only admin can update bank details" });
+        // }
+
+        // Validate bank fields
+        if (!accountHolderName || !bankName || !accountNumber || !ifscCode) {
+            return res
+                .status(400)
+                .json({ message: "All required bank fields must be provided" });
+        }
+
+        // Update bank details
+        customer.bankDetails = {
+            accountHolderName,
+            bankName,
+            accountNumber,
+            ifscCode,
+            branchName,
+        };
+        await customer.save();
+
+        res.status(200).json({
+            success: true,
+            message: "Bank details updated successfully",
+            bankDetails: customer.bankDetails,
+        });
+    } catch (error) {
+        res.status(500).json({ message: "Server error", error: error.message });
+    }
+};
+
+
 
 
