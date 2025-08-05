@@ -14,24 +14,20 @@ export const createPaymentIntentForBook = async (req, res) => {
   try {
     const { email } = req.query;
 
-    // Use only the yearly price ID
-    const priceId = process.env.STRIPE_PRICE_ID_BOOK_YEARLY;
-
-    // Define the trial period (if applicable)
-    // const trialPeriodDays = 7; // 7-day trial for yearly
-
-    // Create the subscription session
     const session = await stripe.checkout.sessions.create({
       line_items: [
         {
-          price: priceId,
+          price_data: {
+            currency: 'usd',
+            product_data: {
+              name: 'Book Purchase',
+            },
+            unit_amount: 6700, // $67 in cents
+          },
           quantity: 1,
         },
       ],
-      mode: "subscription", // Set mode to subscription
-      // subscription_data: {
-        // trial_period_days: trialPeriodDays, // Set the trial period
-      // },
+      mode: 'payment', // one-time payment
       success_url: `https://salssky.com/success?email=${email}&sessionId={CHECKOUT_SESSION_ID}`,
       cancel_url: `https://salssky.com`,
       customer_email: email,
@@ -39,7 +35,7 @@ export const createPaymentIntentForBook = async (req, res) => {
 
     return res.status(200).json({
       success: true,
-      message: 'Subscription checkout session created successfully',
+      message: 'Payment checkout session created successfully',
       data: session,
     });
   } catch (error) {
