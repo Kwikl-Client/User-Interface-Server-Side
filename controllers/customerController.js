@@ -519,6 +519,74 @@ export const acceptCookiePolicy = async (req, res) => {
     }
 };
 
+export const postWhoAmIContent = async (req, res) => {
+try {
+    const { name, identity } = req.body;
+    const { email } = req.query;
+
+    if (!email || typeof email !== 'string') {
+      return res.status(400).json({ error: 'Invalid or missing email in query parameter' });
+    }
+
+    if (!name || typeof name !== 'string') {
+      return res.status(400).json({ error: 'Invalid or missing name data' });
+    }
+
+    if (!identity || typeof identity !== 'string') {
+      return res.status(400).json({ error: 'Invalid or missing identity data' });
+    }
+
+    if (name.length > 150) {
+      return res.status(400).json({ error: 'Name exceeds 150 characters' });
+    }
+
+    if (identity.length > 150) {
+      return res.status(400).json({ error: 'Identity exceeds 150 characters' });
+    }
+
+    const customer = await customerModel.findOneAndUpdate(
+      { email },
+      { whoAmI: { name, identity } },
+      { new: true, runValidators: true }
+    );
+
+    if (!customer) {
+      return res.status(404).json({ error: 'Customer not found' });
+    }
+
+    res.status(200).json({ 
+      message: 'WhoAmI updated successfully', 
+      whoAmI: customer.whoAmI 
+    });
+  } catch (error) {
+    console.error('Error updating whoAmI:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+};
+export const getWhoAmI = async (req, res) => {
+  try {
+    const { email } = req.query;
+
+    if (!email || typeof email !== 'string') {
+      return res.status(400).json({ error: 'Invalid or missing email in query parameter' });
+    }
+
+    const customer = await customerModel.findOne({ email }, 'whoAmI');
+
+    if (!customer) {
+      return res.status(404).json({ error: 'Customer not found' });
+    }
+
+    res.status(200).json({ 
+      message: 'WhoAmI retrieved successfully', 
+      whoAmI: customer.whoAmI || { name: 'Who Am I?', identity: "What's My Purpose?" }
+    });
+  } catch (error) {
+    console.error('Error fetching whoAmI:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+};
+
 
 
 
