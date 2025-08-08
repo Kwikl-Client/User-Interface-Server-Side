@@ -2,7 +2,7 @@ import express from 'express';
 import { allUsersData,registerCustomer, loginCustomer,acceptCookiePolicy,editCustomerDetails, 
     raiseCommunityRequest, verifyTkn, checkEmail, forgotPassword,dailyUserCount,
     starUserCheck,bookAppointment,
-    updateBankDetails
+    updateBankDetails,postWhoAmIContent , getWhoAmI
 } from '../controllers/customerController.js';
 import { protect } from '../middlewares/authmiddlewares.js';
 import uploadImg from '../middlewares/uploadFilemiddlewares.js';
@@ -14,7 +14,9 @@ CustomerRoutes.post('/allUsers', allUsersData);
 CustomerRoutes.post('/registerCustomer', registerCustomer);
 CustomerRoutes.post('/loginCustomer', loginCustomer);
 CustomerRoutes.get('/verifyTkn/:token', verifyTkn);
-CustomerRoutes.post('/checkUser', checkEmail);
+CustomerRoutes.get('/getWhoAmI', getWhoAmI);
+CustomerRoutes.post('/whoAmI', postWhoAmIContent);
+
 CustomerRoutes.patch('/editCustomerDetails', 
     protect,
     editCustomerDetails
