@@ -102,7 +102,21 @@ const CustomerSchema = mongoose.Schema(
             type: Date,
             default: null,
         },
-
+        whoAmI: {
+            type: {
+                name: {
+                    type: String,
+                    required: false,
+                    default: "Who Am I?",
+                },
+                identity: {
+                    type: String,
+                    required: false,
+                    default: "What's My Purpose?",
+                },
+            },
+            required: false,
+        },
         // refundStatus: {
         //   type: String,
         //   enum: ['not valid', 'valid', 'refunded', 'declined'],
