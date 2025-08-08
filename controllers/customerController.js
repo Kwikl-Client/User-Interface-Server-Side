@@ -338,29 +338,34 @@ export const checkEmail = async (req, res) => {
 };
 
 export const raiseCommunityRequest = async (req, res) => {
-    const { email } = req.params; // Use email instead of customId
-    try {
-        const existingUser = await customerModel.findOne({ email: email }); // Find by email
-        if (!existingUser)
-            return res.status(400).json({ success: false, message: 'Customer not found', data: null });
-        
-        existingUser.joinCommunityStatus = "raised";
-        await existingUser.save();
-        
-        const userEmail = existingUser.email;
-        await sendMail(userEmail, "Join Community Request", `Woooo! Your ID has been added to the Join Community waitlist! Amidst demand, a 40-day journey begins, enriched with an exclusive offer. Let's intertwine destinies and embark on your self-transcendence quest with Salssky Odyssey's essence.`);
-        
-        return res.status(200).json({
-            success: true,
-            message: `Join community request raised successfully`,
-            data: existingUser
-        });
+const { email } = req.params;
+  if (!email) {
+    return res.status(400).json({ success: false, message: 'Email parameter is required' });
+  }
+
+  try {
+    const user = await customerModel.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
     }
-    catch (error) {
-        console.log(error);
-        return res.status(500).json({ success: false, message: 'Internal Server Error', data: null });
+
+    if (user.customerType === 'member') {
+      return res.status(200).json({ success: true, message: 'User is already a member' });
     }
-};
+
+    if (user.customerType === 'reader') {
+      user.customerType = 'member';
+      await user.save();
+      return res.status(200).json({ success: true, message: 'Customer type updated to member' });
+    }
+
+    // Handles other types if needed
+    return res.status(400).json({ success: false, message: 'User is not eligible for upgrade' });
+  } catch (error) {
+    console.error('Error updating user:', error);
+    return res.status(500).json({ success: false, message: 'Server error: unable to update customer type' });
+  }
+}
 
 export const deleteCustomer = async (req, res) => {
     const { email } = req.params; // Assuming the email is passed as a parameter in the URL
@@ -513,6 +518,7 @@ export const acceptCookiePolicy = async (req, res) => {
         res.status(500).json({ message: "Server error", error: error.message });
     }
 };
+
 
 
 
