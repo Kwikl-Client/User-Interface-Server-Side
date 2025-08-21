@@ -14,27 +14,33 @@ export const bookAppointment = async (req, res) => {
     const { email } = req.params;
 
     try {
+        // Fetch user with matching email and valid customerType
         const existingUser = await customerModel.findOne({
             email: email.trim(),
-            customerType: "member",
+            customerType: { $in: ["member", "participant", "star"] },
         });
 
+        // If no user found or not a valid customer type
         if (!existingUser) {
             return res.status(400).json({
                 success: false,
-                message: "Customer not found or not a member",
+                message: "Customer not found or not eligible",
                 data: null,
             });
         }
 
+        const now = new Date();
+
+        // If the user has already raised a request
         if (existingUser.talkToStarStatus === "raised") {
             const raisedAt = existingUser.talkToStarStatusRaisedAt;
 
+            // Ensure raisedAt exists
             if (raisedAt) {
-                const now = new Date();
                 const diffInMs = now - new Date(raisedAt);
                 const daysPassed = diffInMs / (1000 * 60 * 60 * 24);
 
+                // Less than 30 days
                 if (daysPassed < 30) {
                     const daysLeft = Math.ceil(30 - daysPassed);
                     return res.status(429).json({
@@ -44,31 +50,27 @@ export const bookAppointment = async (req, res) => {
                     });
                 }
             }
-            // 30 or more days passed or no raisedAt date — reset and update
-            existingUser.talkToStarStatus = "raised";
-            existingUser.talkToStarStatusRaisedAt = new Date();
+
+            // 30 or more days passed — allow rebooking
+            existingUser.talkToStarStatusRaisedAt = now;
             await existingUser.save();
 
             return res.status(200).json({
                 success: true,
-                message: "Appointment rebooked after 30 days.",
+                message: "Appointment rebooked successfully after 30 days.",
                 data: existingUser,
             });
         }
 
-        // Status not raised yet — book first time
-        existingUser.talkToStarStatus = "raised";
-        existingUser.talkToStarStatusRaisedAt = new Date();
-        await existingUser.save();
-
+        // First-time appointment: deny booking, ask to wait 30 days
         return res.status(200).json({
-            success: true,
-            message: "Appointment booked successfully. You may rebook after 30 days.",
-            data: existingUser,
+            success: false,
+            message: "Thank You.You raised a request Please wait 30 days",
+            data: null,
         });
 
     } catch (error) {
-        console.error(error);
+        console.error("Error in booking appointment:", error);
         return res.status(500).json({
             success: false,
             message: "Internal Server Error",
@@ -586,6 +588,7 @@ export const getWhoAmI = async (req, res) => {
     res.status(500).json({ error: 'Server error' });
   }
 };
+
 
 
 
