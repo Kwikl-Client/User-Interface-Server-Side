@@ -87,7 +87,7 @@ export const PaymentIntentToAuthor = async (req, res) => {
                     price_data: {
                         currency: "usd",
                         product_data: {
-                            name: "Talk with Star",
+                            name: "Talk To A STAR",
                         },
                         unit_amount: unitAmount,
                     },
