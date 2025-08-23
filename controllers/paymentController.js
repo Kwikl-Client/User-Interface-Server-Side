@@ -95,8 +95,8 @@ export const PaymentIntentToAuthor = async (req, res) => {
                 },
             ],
             mode: "payment",
-            success_url: `http://localhost:5173/meetings?success=true&email=${email}&session_id={CHECKOUT_SESSION_ID}&meetingId=${meetingId}&role=${type}`,
-            cancel_url: `http://localhost:5173/meetings?success=false`,
+            success_url: `https://salssky.com/meetings?success=true&email=${email}&session_id={CHECKOUT_SESSION_ID}&meetingId=${meetingId}&role=${type}`,
+            cancel_url: `https://salssky.com/meetings?success=false`,
             customer_email: email,
         });
 
