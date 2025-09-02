@@ -135,7 +135,7 @@ export const registerCustomer = async (req, res) => {
 You’ve just taken your first step into your STAR Awakening — a journey to awaken the true self that has always been within you, unlocking strength, clarity, and peace.\n
 Your Access Details\n\n
 • Username: your email\n
-• Temporary Password: ${password}\n
+• Temporary Password:${password}\n
 👉 Begin here: salssky.com/login\n\n
 Inside, you’ll discover your sanctuary for growth and connection — a place to rise with your global tribe, build unstoppable momentum, and let your STAR life unfold.\n
 We are honored to walk this journey with you.\n
@@ -593,6 +593,7 @@ export const getWhoAmI = async (req, res) => {
     res.status(500).json({ error: 'Server error' });
   }
 };
+
 
 
 
