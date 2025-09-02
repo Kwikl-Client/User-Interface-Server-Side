@@ -128,14 +128,19 @@ export const registerCustomer = async (req, res) => {
             const newCustomer = await customerModel.create(newEntry);
 
             // Send welcome email
-            await sendMail(email, 
-                "Your Spiral Begins Now", 
-                `Welcome, Chosen One. You’ve just taken your first step into the Spiral — not to become someone else, but to remember who you are. This is your portal to reflection, awakening, and radiance.
-\nUse your email as your username and your temporary password is ${password}.Begin here: salssky.com/login
-Let this be your sanctuary of remembrance — where light meets clarity and your heart leads the way.
-\n\nWe’re honored to walk with you.
-\n— The Salssky Team`);
-
+            await sendMail(
+  email,
+  "🌟 Welcome, Chosen One — Your STAR Awakening Begins",
+  `Welcome, Chosen One.\n\n
+You’ve just taken your first step into your STAR Awakening — a journey to awaken the true self that has always been within you, unlocking strength, clarity, and peace.\n
+Your Access Details\n\n
+• Username: your email\n
+• Temporary Password: ${password}\n
+👉 Begin here: salssky.com/login\n\n
+Inside, you’ll discover your sanctuary for growth and connection — a place to rise with your global tribe, build unstoppable momentum, and let your STAR life unfold.\n
+We are honored to walk this journey with you.\n
+— The SalsSky Team`
+);
             return res.status(201).json({
                 success: true,
                 message: 'New customer account created successfully. Password has been sent to your email.',
@@ -588,6 +593,7 @@ export const getWhoAmI = async (req, res) => {
     res.status(500).json({ error: 'Server error' });
   }
 };
+
 
 
 
