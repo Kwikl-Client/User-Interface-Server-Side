@@ -28,7 +28,7 @@ export const createPaymentIntentForBook = async (req, res) => {
       subscription_data: {
         trial_period_days: trialPeriodDays,
       },
-      allow_promotion_codes: true,
+      // allow_promotion_codes: true,
       success_url: `https://salssky.com/success?email=${email}&sessionId={CHECKOUT_SESSION_ID}`,
       cancel_url: `https://salssky.com`,
       customer_email: email,
