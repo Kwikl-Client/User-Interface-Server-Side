@@ -126,38 +126,65 @@ export const retrievePaymentDetails = async (req, res) => {
 }
 
 export const cancelSubscription = async (req, res) => {
-  try {
-    const { email } = req.body;
+    try {
+        const { email } = req.body;
+        if (!email) {
+            return res.status(400).json({
+                success: false,
+                message: "Email is required",
+            });
+        }
+        const customer = await customerModel.findOne({ email });
+        if (
+            !customer ||
+            !Array.isArray(customer.stripeDetails) ||
+            customer.stripeDetails.length === 0 ||
+            !customer.stripeDetails[0].sessionId
+        ) {
+            return res.status(404).json({
+                success: false,
+                message: "Customer or subscription session not found",
+            });
+        }
+        const sessionId = customer.stripeDetails[0].sessionId;
+        const session = await stripe.checkout.sessions.retrieve(sessionId);
+        if (!session.subscription) {
+            return res.status(404).json({
+                success: false,
+                message: "No subscription found for this session",
+            });
+        }
+        const subscriptionId = session.subscription;
+        const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+        if (subscription.status === "canceled") {
+            console.log(subscription.status)
+            return res.status(200).json({
+                success: true,
+                message: "Subscription is already canceled",
+            });
+        }
+        const updatedSubscription = await stripe.subscriptions.update(subscriptionId, {
+            cancel_at_period_end: true,
+        });
+        if (!customer.subscriptionDetails) {
+            customer.subscriptionDetails = {};
+        }
+        customer.subscriptionDetails.cancel_at_period_end = true;
+        await customer.save();
+        return res.status(200).json({
+            success: true,
+            message: "Subscription set to cancel at the end of the current billing cycle",
+            data: updatedSubscription,
+        });
 
-    // Find the customer in your database
-    const customer = await customerModel.findOne({ email });
-
-    if (!customer || !customer.stripeDetails || !customer.stripeDetails.sessionId) {
-      return res.status(400).json({ success: false, message: 'Customer or subscription not found' });
+    } catch (error) {
+        console.error("Error canceling subscription:", error);
+        return res.status(500).json({
+            success: false,
+            message: "Internal server error",
+            error: error.message,
+        });
     }
-
-    // Retrieve the session to get the subscription ID
-    const session = await stripe.checkout.sessions.retrieve(customer.stripeDetails.sessionId);
-    const subscriptionId = session.subscription;
-
-    if (!subscriptionId) {
-      return res.status(400).json({ success: false, message: 'Subscription not found for this customer' });
-    }
-
-    // Cancel the subscription at the end of the current billing period
-    const updatedSubscription = await stripe.subscriptions.update(subscriptionId, {
-      cancel_at_period_end: true,
-    });
-
-    // Optionally update the customer record in your database (if needed)
-    customer.subscriptionDetails.cancel_at_period_end = true;
-    await customer.save();
-
-    return res.status(200).json({ success: true, message: 'Subscription set to cancel at the end of the current billing cycle', data: updatedSubscription });
-  } catch (error) {
-    console.error('Error canceling subscription:', error);
-    return res.status(500).json({ success: false, message: 'Internal Server Error', data: null });
-  }
 };
 export const expireCheckoutSession = async (req, res) => {
   try {
