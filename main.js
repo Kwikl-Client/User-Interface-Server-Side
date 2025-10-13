@@ -23,7 +23,14 @@ connectDB();
 const app = express();
 app.use(express.json({ extended: true }));
 app.use(express.urlencoded({ extended: true }));
-app.use(cors());
+// app.use(cors());
+app.use(cors({
+  origin: "https://web.salssky.com", 
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"]
+}));
+
 
 const { DAILY_API_URL, DAILY_API_KEY, PORT } = process.env;
 
@@ -32,6 +39,7 @@ if (!DAILY_API_URL || !DAILY_API_KEY) {
   console.error("DAILY_API_URL or DAILY_API_KEY is missing in environment variables!");
   process.exit(1);
 }
+app.options("*", cors()); // Enables preflight for all routes
 
 // Routes
 app.use("/customer", CustomerRoutes);
@@ -43,6 +51,10 @@ app.use("/counter", counterWebsite);
 app.use("/dashboard", dashboardRouter);
 app.use("/send-feedback", feedbackRouter);
 app.use("/meeting", Meetings);
+app.use((req, res, next) => {
+  console.log("Origin:", req.headers.origin);
+  next();
+});
 
 // Daily.co: fetch all meetings
 app.get("/meetings", async (req, res) => {
@@ -146,3 +158,4 @@ const port = PORT || 4000;
 app.listen(port, () => {
   console.log(` Server started on port ${port}`.bold.brightGreen);
 });
+
