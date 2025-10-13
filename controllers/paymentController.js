@@ -12,18 +12,43 @@ export const packages = {
 };
 export const createPaymentIntentForBook = async (req, res) => {
   try {
-    const { email } = req.query;
+    const { email, productId } = req.query;  // Capture the productId (and email) from query parameters
 
-    const priceId = process.env.STRIPE_PRICE_ID_BOOK_YEARLY;
+    // Check for missing productId or email
+    if (!productId || !email) {
+      return res.status(400).json({
+        success: false,
+        message: "Missing 'productId' or 'email' parameter.",
+      });
+    }
+
+    // Map productId to its corresponding price IDs from environment variables
+    let priceIds = [];
+    if (productId === process.env.STRIPE_PRODUCT_ID_SALSSKY) {
+      // Add monthly and yearly price IDs for SalsSky product
+      priceIds = [
+        process.env.STRIPE_PRICE_ID_BOOK_MONTHLY,  // Monthly price ID
+        process.env.STRIPE_PRICE_ID_BOOK_YEARLY,   // Yearly price ID
+      ];
+    }
+
+    // If no matching productId is found, return an error
+    if (priceIds.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid 'productId' or no price options available for this product.",
+      });
+    }
+
+    // Trial period for the subscription
     const trialPeriodDays = 7;
 
+    // Create Stripe checkout session with the selected priceIds
     const session = await stripe.checkout.sessions.create({
-      line_items: [
-        {
-          price: priceId,
-          quantity: 1,
-        },
-      ],
+      line_items: priceIds.map(priceId => ({
+        price: priceId,  // Adding each priceId to the line_items
+        quantity: 1,
+      })),
       mode: "subscription",
       subscription_data: {
         trial_period_days: trialPeriodDays,
@@ -48,7 +73,6 @@ export const createPaymentIntentForBook = async (req, res) => {
     });
   }
 };
-
 
 export const PaymentIntentToAuthor = async (req, res) => {
     try {
