@@ -11,11 +11,36 @@ export const packages = {
   comMonthly: process.env.STRIPE_PRICE_ID_COMMUNITY_MONTHLY,
 };
 export const createPaymentIntentForBook = async (req, res) => {
+    try {
+        const { email, packageType } = req.query;
 
-   try {
-        const { email } = req.query;
+        // Validate input
+        if (!email || !packageType) {
+            return res.status(400).json({
+                success: false,
+                message: "Missing email or packageType.",
+            });
+        }
 
-        const priceId = process.env.STRIPE_PRICE_ID_BOOK_YEARLY;
+        // Normalize packageType
+        const plan = packageType.toLowerCase();
+
+        // Map to Stripe price IDs from .env
+        const priceMap = {
+            monthly: process.env.STRIPE_PRICE_ID_BOOK_MONTHLY,
+            quarterly: process.env.STRIPE_PRICE_ID_BOOK_QUARTERLY,
+            yearly: process.env.STRIPE_PRICE_ID_BOOK_YEARLY,
+        };
+
+        const priceId = priceMap[plan];
+
+        if (!priceId) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid packageType. Valid options: monthly, quarterly, yearly.",
+            });
+        }
+
         const trialPeriodDays = 7;
 
         const session = await stripe.checkout.sessions.create({
@@ -30,26 +55,24 @@ export const createPaymentIntentForBook = async (req, res) => {
                 trial_period_days: trialPeriodDays,
             },
             allow_promotion_codes: true,
+            customer_email: email,
             success_url: `https://salssky.com/success?email=${email}&sessionId={CHECKOUT_SESSION_ID}`,
             cancel_url: `https://salssky.com`,
-            customer_email: email,
         });
 
         return res.status(200).json({
             success: true,
-            message: "Subscription checkout session created successfully",
+            message: `Subscription created for ${plan} package.`,
             data: session,
         });
     } catch (error) {
-        console.error(error);
+        console.error("Stripe error:", error);
         return res.status(500).json({
             success: false,
             message: "Internal Server Error",
-            data: null,
         });
     }
 };
-
 export const PaymentIntentToAuthor = async (req, res) => {
     try {
         const { email, meetingId, type } = req.body;
