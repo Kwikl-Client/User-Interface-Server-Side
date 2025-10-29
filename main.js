@@ -12,7 +12,7 @@ import counterWebsite from "./routes/counterWebsite.js";
 import dashboardRouter from "./routes/admin.js";
 import feedbackRouter from "./routes/feedback.js";
 import Meetings from "./routes/meetings.js";
-import OnePlus from "./routes/plusOne.js";
+// import OnePlus from "./routes/plusOne.js";
 import { createServer } from "http";
 import { Server } from "socket.io";
 
@@ -129,7 +129,7 @@ app.use('/counter', counterWebsite);
 app.use('/dashboard', dashboardRouter);
 app.use('/send-feedback', feedbackRouter);
 app.use("/meeting", Meetings);
-app.use("/one-plus", OnePlus);
+// app.use("/one-plus", OnePlus);
 
 // Fetch all meetings
 app.get("/meetings", async (req, res) => {
@@ -209,3 +209,4 @@ const port = PORT || 7000;
 server.listen(port, () => {
   console.log(`Server started on port ${port}`.bold.brightGreen);
 });
+
