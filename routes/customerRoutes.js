@@ -2,21 +2,23 @@ import express from 'express';
 import { allUsersData,registerCustomer, loginCustomer,acceptCookiePolicy,editCustomerDetails, 
     raiseCommunityRequest, verifyTkn, checkEmail, forgotPassword,dailyUserCount,
     starUserCheck,bookAppointment,
-    updateBankDetails,postWhoAmIContent , getWhoAmI
+    updateBankDetails,postWhoAmIContent , getWhoAmI,
+    getUsersStatus,
+    logoutCustomer
 } from '../controllers/customerController.js';
 import { protect } from '../middlewares/authmiddlewares.js';
-import uploadImg from '../middlewares/uploadFilemiddlewares.js';
-import upload from '../middlewares/multermiddlewares.js';
+
 
 const CustomerRoutes = express.Router();
 CustomerRoutes.get('/dailyUserCount',dailyUserCount);
+CustomerRoutes.get('/allUsers-Status',getUsersStatus);
 CustomerRoutes.post('/allUsers', allUsersData);
+CustomerRoutes.post('logout', logoutCustomer);
 CustomerRoutes.post('/registerCustomer', registerCustomer);
 CustomerRoutes.post('/loginCustomer', loginCustomer);
 CustomerRoutes.get('/verifyTkn/:token', verifyTkn);
 CustomerRoutes.get('/getWhoAmI', getWhoAmI);
 CustomerRoutes.post('/whoAmI', postWhoAmIContent);
-
 CustomerRoutes.patch('/editCustomerDetails', 
     protect,
     editCustomerDetails
