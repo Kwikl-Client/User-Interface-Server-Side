@@ -205,8 +205,9 @@ app.post("/api/schedule", async (req, res) => {
 });
 
 // Set port and start the server
-const port = PORT || 7000;
+const port = PORT || 4000;
 server.listen(port, () => {
   console.log(`Server started on port ${port}`.bold.brightGreen);
 });
+
 
