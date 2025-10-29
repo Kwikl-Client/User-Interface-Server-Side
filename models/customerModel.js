@@ -74,7 +74,7 @@ const CustomerSchema = mongoose.Schema(
         },
         customerType: {
             type: String,
-            enum: ["admin", "reader", "member", "participant", "star"],
+            enum: ["admin", "reader", "member", "participant", "star","host"],
             default: "reader",
         },
         helpMessage: {
@@ -117,10 +117,14 @@ const CustomerSchema = mongoose.Schema(
             },
             required: false,
         },
-        // refundStatus: {
-        //   type: String,
-        //   enum: ['not valid', 'valid', 'refunded', 'declined'],
-        // },
+       lastActiveAt: {
+            type: Date,
+            default: null, // When they last visited
+        },
+        isOnline: {
+            type: Boolean,
+            default: false,
+        },
         lastHelpMessageSentAt: {
             type: Date,
             default: null,
