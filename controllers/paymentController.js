@@ -24,17 +24,19 @@ export const createPaymentIntentForBook = async (req, res) => {
 
     const plan = packageType.toLowerCase();
 
-    if (!["monthly", "yearly"].includes(plan)) {
+    // Validate package type
+    if (!["monthly", "yearly", "full"].includes(plan)) {
       return res.status(400).json({
         success: false,
-        message: "Invalid packageType. Valid options: monthly, yearly.",
+        message: "Invalid packageType. Valid options: monthly, yearly, full.",
       });
     }
 
-    // Get price ID from environment variables
+    // Map environment variables for each plan
     const priceMap = {
       monthly: process.env.STRIPE_PRICE_ID_BOOK_MONTHLY,
       yearly: process.env.STRIPE_PRICE_ID_BOOK_YEARLY,
+      full: process.env.STRIPE_PRICE_ID_BOOK_FULL,
     };
 
     const priceId = priceMap[plan];
@@ -46,43 +48,26 @@ export const createPaymentIntentForBook = async (req, res) => {
       });
     }
 
-    let session;
+    // Define mode based on plan type
+    const isSubscription = plan === "yearly"; // Only yearly is a subscription
 
-    if (plan === "monthly") {
-      // One-time payment
-      session = await stripe.checkout.sessions.create({
-        payment_method_types: ["card"],
-        line_items: [
-          {
-            price: priceId,
-            quantity: 1,
-          },
-        ],
-        mode: "subscription", // One-time payment
-        customer_email: email,
-        success_url: `https://salssky.com/success?email=${encodeURIComponent(email)}&sessionId={CHECKOUT_SESSION_ID}`,
-        cancel_url: `https://salssky.com`,
-      });
-    } else {
-      // Yearly subscription
-      session = await stripe.checkout.sessions.create({
-        payment_method_types: ["card"],
-        line_items: [
-          {
-            price: priceId,
-            quantity: 1,
-          },
-        ],
-        mode: "subscription", // Subscription
-        customer_email: email,
-        success_url: `https://salssky.com/success?email=${encodeURIComponent(email)}&sessionId={CHECKOUT_SESSION_ID}`,
-        cancel_url: `https://salssky.com`,
-      });
-    }
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ["card"],
+      line_items: [
+        {
+          price: priceId,
+          quantity: 1,
+        },
+      ],
+      mode:  "subscription", // Full & Monthly = one-time; Yearly = subscription
+      customer_email: email,
+      success_url: `https://salssky.com/success?email=${encodeURIComponent(email)}&sessionId={CHECKOUT_SESSION_ID}`,
+      cancel_url: `https://salssky.com`,
+    });
 
     return res.status(200).json({
       success: true,
-      message: `${plan === "monthly" ? "One-time payment" : "Subscription"} session created for ${plan} plan.`,
+      message: `${isSubscription ? "Subscription" : "One-time payment"} session created for ${plan} plan.`,
       data: session,
     });
   } catch (error) {
@@ -94,6 +79,7 @@ export const createPaymentIntentForBook = async (req, res) => {
     });
   }
 };
+
 //     try {
 //         const { email, packageType } = req.query;
 
