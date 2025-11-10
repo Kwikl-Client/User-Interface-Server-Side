@@ -24,33 +24,24 @@ export const createPaymentIntentForBook = async (req, res) => {
 
     const plan = packageType.toLowerCase();
 
-    // Validate package type
-    if (!["monthly", "yearly", "full"].includes(plan)) {
+    // ONLY ALLOW 'yearly' — block all others
+    if (plan !== "yearly") {
       return res.status(400).json({
         success: false,
-        message: "Invalid packageType. Valid options: monthly, yearly, full.",
+        message: "Only the Yearly plan is available at this time.",
       });
     }
 
-    // Map environment variables for each plan
-    const priceMap = {
-      monthly: process.env.STRIPE_PRICE_ID_BOOK_MONTHLY,
-      yearly: process.env.STRIPE_PRICE_ID_BOOK_YEARLY,
-      full: process.env.STRIPE_PRICE_ID_BOOK_FULL,
-    };
-
-    const priceId = priceMap[plan];
+    const priceId = process.env.STRIPE_PRICE_ID_BOOK_YEARLY;
 
     if (!priceId) {
       return res.status(500).json({
         success: false,
-        message: `Missing Stripe price ID for ${plan} plan.`,
+        message: "Missing Stripe price ID for yearly plan.",
       });
     }
 
-    // Define mode based on plan type
-    const isSubscription = plan === "yearly"; // Only yearly is a subscription
-
+    // Force subscription mode (yearly = recurring)
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
       line_items: [
@@ -59,7 +50,7 @@ export const createPaymentIntentForBook = async (req, res) => {
           quantity: 1,
         },
       ],
-      mode:  "subscription", // Full & Monthly = one-time; Yearly = subscription
+      mode: "subscription", // Always subscription for yearly
       customer_email: email,
       success_url: `https://salssky.com/success?email=${encodeURIComponent(email)}&sessionId={CHECKOUT_SESSION_ID}`,
       cancel_url: `https://salssky.com`,
@@ -67,7 +58,7 @@ export const createPaymentIntentForBook = async (req, res) => {
 
     return res.status(200).json({
       success: true,
-      message: `${isSubscription ? "Subscription" : "One-time payment"} session created for ${plan} plan.`,
+      message: "Subscription session created for Yearly plan.",
       data: session,
     });
   } catch (error) {
@@ -80,68 +71,6 @@ export const createPaymentIntentForBook = async (req, res) => {
   }
 };
 
-//     try {
-//         const { email, packageType } = req.query;
-
-//         // Validate input
-//         if (!email || !packageType) {
-//             return res.status(400).json({
-//                 success: false,
-//                 message: "Missing email or packageType.",
-//             });
-//         }
-
-//         // Normalize packageType
-//         const plan = packageType.toLowerCase();
-
-//         // Map to Stripe price IDs from .env
-//         const priceMap = {
-//             monthly: process.env.STRIPE_PRICE_ID_BOOK_MONTHLY,
-//             quarterly: process.env.STRIPE_PRICE_ID_BOOK_QUARTERLY,
-//             yearly: process.env.STRIPE_PRICE_ID_BOOK_YEARLY,
-//         };
-
-//         const priceId = priceMap[plan];
-
-//         if (!priceId) {
-//             return res.status(400).json({
-//                 success: false,
-//                 message: "Invalid packageType. Valid options: monthly, quarterly, yearly.",
-//             });
-//         }
-
-//         const trialPeriodDays = 7;
-
-//         const session = await stripe.checkout.sessions.create({
-//             line_items: [
-//                 {
-//                     price: priceId,
-//                     quantity: 1,
-//                 },
-//             ],
-//             mode: "subscription",
-//             subscription_data: {
-//                 trial_period_days: trialPeriodDays,
-//             },
-//             allow_promotion_codes: true,
-//             customer_email: email,
-//             success_url: `https://salssky.com/success?email=${email}&sessionId={CHECKOUT_SESSION_ID}`,
-//             cancel_url: `https://salssky.com`,
-//         });
-
-//         return res.status(200).json({
-//             success: true,
-//             message: `Subscription created for ${plan} package.`,
-//             data: session,
-//         });
-//     } catch (error) {
-//         console.error("Stripe error:", error);
-//         return res.status(500).json({
-//             success: false,
-//             message: "Internal Server Error",
-//         });
-//     }
-// };
 export const PaymentIntentToAuthor = async (req, res) => {
     try {
         const { email, meetingId, type } = req.body;
