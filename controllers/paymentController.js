@@ -10,6 +10,85 @@ export const packages = {
   jumbo: process.env.STRIPE_PRICE_ID_BOOK_CHAT_JUMBO_YEARLY,
   comMonthly: process.env.STRIPE_PRICE_ID_COMMUNITY_MONTHLY,
 };
+// export const createPaymentIntentForBook = async (req, res) => {
+//   try {
+//     const { email, packageType } = req.query;
+
+//     // ---- Input validation -------------------------------------------------
+//     if (!email || !packageType) {
+//       return res.status(400).json({
+//         success: false,
+//         message: "Missing email or packageType.",
+//       });
+//     }
+
+//     const plan = packageType.toLowerCase().trim();
+
+//     if (!["monthly", "yearly", "full"].includes(plan)) {
+//       return res.status(400).json({
+//         success: false,
+//         message: "Invalid packageType. Valid options: monthly, yearly, full.",
+//       });
+//     }
+
+//     // ---- Price-ID map ----------------------------------------------------
+//     const priceMap = {
+//       monthly: process.env.STRIPE_PRICE_ID_BOOK_MONTHLY, // recurring
+//       yearly: process.env.STRIPE_PRICE_ID_BOOK_YEARLY,  // one-time
+//       full: process.env.STRIPE_PRICE_ID_BOOK_FULL,      // one-time (lifetime)
+//     };
+
+//     const priceId = priceMap[plan];
+//     if (!priceId) {
+//       return res.status(500).json({
+//         success: false,
+//         message: `Missing Stripe price ID for ${plan} plan.`,
+//       });
+//     }
+
+//     // ---- Determine mode --------------------------------------------------
+//     const mode = plan === "full" ? "payment" : "subscription";
+
+//     // ---- Create Checkout Session -----------------------------------------
+//     const session = await stripe.checkout.sessions.create({
+//       payment_method_types: ["card"],
+//       line_items: [
+//         {
+//           price: priceId,
+//           quantity: 1,
+//         },
+//       ],
+//       mode, // subscription only for monthly
+//       customer_email: email,
+//       success_url: `https://salssky.com/success?email=${encodeURIComponent(email)}&sessionId={CHECKOUT_SESSION_ID}`,
+//       cancel_url: `https://salssky.com`,
+//       metadata: {
+//         plan_type: plan,
+//         user_email: email,
+//       },
+//     });
+
+//     // ---- Response --------------------------------------------------------
+//     const isSubscription = mode === "subscription";
+//     return res.status(200).json({
+//       success: true,
+//       message: isSubscription
+//         ? `Subscription session created for ${plan} plan.`
+//         : `One-time payment session created for ${plan} plan.`,
+//       data: {
+//         sessionId: session.id,
+//         url: session.url, // This is where frontend should redirect
+//       },
+//     });
+//   } catch (error) {
+//     console.error("Stripe Checkout Error:", error);
+//     return res.status(500).json({
+//       success: false,
+//       message: "Failed to create checkout session.",
+//       error: error.message,
+//     });
+//   }
+// };
 export const createPaymentIntentForBook = async (req, res) => {
   try {
     const { email, packageType } = req.query;
@@ -24,7 +103,7 @@ export const createPaymentIntentForBook = async (req, res) => {
 
     const plan = packageType.toLowerCase().trim();
 
-    if (!["monthly", "yearly", "full"].includes(plan)) {
+    if (!["monthly", "yearly", "full","star_session"].includes(plan)) {
       return res.status(400).json({
         success: false,
         message: "Invalid packageType. Valid options: monthly, yearly, full.",
@@ -35,7 +114,8 @@ export const createPaymentIntentForBook = async (req, res) => {
     const priceMap = {
       monthly: process.env.STRIPE_PRICE_ID_BOOK_MONTHLY, // recurring
       yearly: process.env.STRIPE_PRICE_ID_BOOK_YEARLY,  // one-time
-      full: process.env.STRIPE_PRICE_ID_BOOK_FULL,      // one-time (lifetime)
+      full: process.env.STRIPE_PRICE_ID_BOOK_FULL, 
+      star_session: process.env.STRIPE_PRICE_ID_STAR_SESSION,     // one-time (lifetime)
     };
 
     const priceId = priceMap[plan];
