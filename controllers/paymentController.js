@@ -169,6 +169,76 @@ export const createPaymentIntentForBook = async (req, res) => {
     });
   }
 };
+export const renewalCheckoutSession = async (req, res) => {
+    try {
+        const { email } = req.query;
+        if (!email) {
+            return res.status(400).json({ success: false, message: "Missing email." });
+        }
+
+        const priceId = process.env.STRIPE_PRICE_ID_BOOK;
+
+        // 🔹 Step 1: Find or create the Stripe customer
+        const existingCustomers = await stripe.customers.list({ email, limit: 1 });
+        let customerId;
+        if (existingCustomers.data.length > 0) {
+            customerId = existingCustomers.data[0].id;
+        } else {
+            const newCustomer = await stripe.customers.create({ email });
+            customerId = newCustomer.id;
+        }
+
+        // 🔹 Step 2: Create a renewal session
+        const session = await stripe.checkout.sessions.create({
+            customer: customerId,
+            mode: "subscription",
+            line_items: [
+                {
+                    price_data: {
+                        currency: "usd",
+                        product_data: {
+                            name: "Book Renewal Subscription",
+                        },
+                        unit_amount: 20000, // $200 → amount in cents
+                        recurring: {
+                            interval: "year",
+                        },
+                    },
+                    quantity: 1,
+                },
+            ], subscription_data: {},
+            allow_promotion_codes: true,
+            success_url: `https://salssky.com/success?email=${email}&sessionId={CHECKOUT_SESSION_ID}&renewal=true`,
+            cancel_url: `https://salssky.com`,
+            metadata: { type: "renewal", email },
+        });
+
+        // 🔹 Step 3: Update MongoDB customer record
+        const customer = await customerModel.findOne({ email });
+        if (customer) {
+            customer.subscriptionDetails.push({
+                sessionId: session.id,
+                packageType: "book_renewal",
+                createdAt: new Date(),
+            });
+            await customer.save();
+        }
+
+        return res.status(200).json({
+            success: true,
+            message: "Renewal checkout session created successfully.",
+            data: session,
+        });
+    } catch (error) {
+        console.error("Stripe renewal error:", error);
+        return res.status(500).json({
+            success: false,
+            message: "Internal Server Error",
+            error: error.message,
+        });
+    }
+};
+
 export const PaymentIntentToAuthor = async (req, res) => {
     try {
         const { email, meetingId, type } = req.body;
@@ -186,8 +256,12 @@ export const PaymentIntentToAuthor = async (req, res) => {
         // Set unit amount based on role type
         let unitAmount;
         if (type === 'participant') {
-            unitAmount = 4999; // $49.99
-        } else if (type === 'audience') {
+            unitAmount = 9999; // $49.99
+        }
+        if (type === 'direct') {
+            unitAmount = 29999;
+        }
+        else if (type === 'audience') {
             unitAmount = 1999; // $19.99
         } else {
             return res.status(400).json({
@@ -204,7 +278,7 @@ export const PaymentIntentToAuthor = async (req, res) => {
                     price_data: {
                         currency: "usd",
                         product_data: {
-                            name: "Talk To A STAR",
+                            name: "Talk with Author",
                         },
                         unit_amount: unitAmount,
                     },
@@ -212,8 +286,8 @@ export const PaymentIntentToAuthor = async (req, res) => {
                 },
             ],
             mode: "payment",
-            success_url: `https://salssky.com/meetings?success=true&email=${email}&session_id={CHECKOUT_SESSION_ID}&meetingId=${meetingId}&role=${type}`,
-            cancel_url: `https://salssky.com/meetings?success=false`,
+            success_url: `http://localhost:5173/meetings?success=true&email=${email}&session_id={CHECKOUT_SESSION_ID}&meetingId=${meetingId}&role=${type}`,
+            cancel_url: `http://localhost:5173/meetings?success=false`,
             customer_email: email,
         });
 
