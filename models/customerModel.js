@@ -74,11 +74,15 @@ const CustomerSchema = mongoose.Schema(
         },
         customerType: {
             type: String,
-            enum: ["admin", "reader", "member", "participant", "star","host"],
+            enum: ["admin", "reader", "member", "participant", "star", "host"],
             default: "reader",
         },
         helpMessage: {
             type: String,
+        },
+        hasBookedFreeSession: {
+            type: Boolean,
+            default: false, // Default is false, meaning the user hasn't booked a free session yet
         },
         joinCommunityStatus: {
             type: String,
@@ -117,7 +121,7 @@ const CustomerSchema = mongoose.Schema(
             },
             required: false,
         },
-       lastActiveAt: {
+        lastActiveAt: {
             type: Date,
             default: null, // When they last visited
         },
@@ -163,7 +167,12 @@ CustomerSchema.pre("save", function (next) {
     }
     next();
 });
-
+CustomerSchema.methods.markFirstFreeSessionBooked = async function () {
+    if (this.amtPaid === 299 && !this.hasBookedFreeSession) {
+        this.hasBookedFreeSession = true;
+        await this.save();  // Save the updated status to the database
+    }
+};
 CustomerSchema.pre("save", function (next) {
     const last6Digits = this._id.toString().slice(-6);
     this.customId = last6Digits;
