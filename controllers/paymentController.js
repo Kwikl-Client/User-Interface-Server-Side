@@ -305,7 +305,24 @@ export const PaymentIntentToAuthor = async (req, res) => {
         });
     }
 };
+export const renewSamePlan = async (req, res) => {
+  const { email, packageType } = req.query;
 
+const priceMap = {
+  monthly: process.env.STRIPE_PRICE_ID_BOOK_MONTHLY, // recurring
+  yearly: process.env.STRIPE_PRICE_ID_BOOK_YEARLY,  // recurring
+  full: process.env.STRIPE_PRICE_ID_BOOK_FULL,      // one-time
+  star_session: process.env.STRIPE_PRICE_ID_STAR_SESSION, // one-time
+};
+
+// Ensure packageType is valid
+const priceId = priceMap[packageType.toLowerCase()];
+if (!priceId) {
+  return res.status(400).json({
+    success: false,
+    message: `Invalid package type: ${packageType}`,
+  });
+}
 export const retrievePaymentDetails = async (req, res) => {
   try {
     const { sessionId } = req.params;
